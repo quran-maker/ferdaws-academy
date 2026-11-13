@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>চেকআউট — {site}</title>
+  <link rel="icon" href="favicon.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header id="site-header"></header>
+  <main>
+    <div class="page-head" style="padding:40px 0">
+      <div class="container">
+        <div class="crumbs"><a href="index.html">হোম</a> / <a id="crumbCourse" href="#">কোর্স</a> / <span>চেকআউট</span></div>
+        <h1 style="margin:0">পেমেন্ট ও ভর্তি</h1>
+      </div>
+    </div>
+
+    <div class="container checkout" id="checkoutView">
+      <div class="card box">
+        <h2>পেমেন্ট মাধ্যম বেছে নিন</h2>
+        <div class="pay-tabs" id="payTabs"></div>
+        <div class="pay-steps" id="paySteps"></div>
+
+        <!-- Netlify Forms: প্রতিটি ভর্তির তথ্য Netlify ড্যাশবোর্ড > Forms > enroll এ জমা হবে -->
+        <form class="form" name="enroll" method="POST" data-netlify="true" netlify-honeypot="bot-field" id="enrollForm">
+          <input type="hidden" name="form-name" value="enroll">
+          <p class="hp"><label>এটা পূরণ করবেন না <input name="bot-field"></label></p>
+          <input type="hidden" name="course">
+          <input type="hidden" name="amount">
+          <input type="hidden" name="method">
+          <input type="hidden" name="account_phone">
+          <div class="form-row">
+            <div class="field"><label>পূর্ণ নাম</label><input name="name" required></div>
+            <div class="field"><label>যোগাযোগের মোবাইল</label><input name="phone" type="tel" required></div>
+          </div>
+          <div class="form-row">
+            <div class="field"><label>যে নম্বর থেকে টাকা পাঠিয়েছেন</label><input name="sender" type="tel" required placeholder="01XXXXXXXXX"></div>
+            <div class="field"><label>ট্রানজেকশন আইডি (TrxID)</label><input name="trxid" required placeholder="যেমন: 9A7B3C2D1E" style="text-transform:uppercase"></div>
+          </div>
+          <div class="form-err" id="err"></div>
+          <button class="btn btn-primary btn-lg" type="submit" id="submitBtn">পেমেন্ট তথ্য জমা দিন</button>
+          <small class="muted">তথ্য জমা দেওয়ার পর আমরা পেমেন্ট যাচাই করে আপনার মোবাইলে একটি আনলক কোড পাঠাব (সাধারণত ১–৬ ঘণ্টার মধ্যে)।</small>
+        </form>
+      </div>
+
+      <aside class="card">
+        <div id="summary"></div>
+      </aside>
+    </div>
+
+    <div class="container hidden" id="successView" style="max-width:640px;padding:50px 20px 80px">
+      <div class="card success">
+        <div class="big-ic"><svg class="ic" width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <h2>আপনার পেমেন্ট তথ্য জমা হয়েছে!</h2>
+        <p class="muted">আমরা ট্রানজেকশন যাচাই করে আপনার মোবাইল/WhatsApp এ ৬ অক্ষরের একটি <b>আনলক কোড</b> পাঠাব। কোডটি নিচে বা ড্যাশবোর্ডে দিলেই কোর্স চালু হয়ে যাবে।</p>
+        <form class="unlock" id="unlockForm"><input id="unlockInput" placeholder="আনলক কোড" maxlength="6" aria-label="আনলক কোড"><button class="btn btn-primary">আনলক</button></form>
+        <div style="display:flex;gap:10px;justify-content:center;margin-top:22px;flex-wrap:wrap">
+          <a class="btn btn-ghost" href="dashboard.html">ড্যাশবোর্ডে যান</a>
+          <a class="btn btn-ghost" id="waConfirm" target="_blank" rel="noopener" href="#">WhatsApp এ জানান</a>
+        </div>
+      </div>
+    </div>
+  </main>
+  <footer id="site-footer"></footer>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+  <script>
+    onReady(() => {
+      const c = getCourse(qs("id"));
+      if (!c) { location.replace("courses.html"); return; }
+      const u = Auth.require(); if (!u) return;
+      if (c.price === 0) { location.replace("course.html?id=" + c.id); return; }
+      const st = Enroll.status(c.id);
+      if (st !== "pending") track("InitiateCheckout", courseData(c));
+      if (st === "active") { location.replace("learn.html?id=" + c.id); return; }
+
+      $("#crumbCourse").textContent = c.title; $("#crumbCourse").href = "course.html?id=" + c.id;
+      $("#summary").innerHTML = `${thumb(c)}<div class="buy-body">
+        <h3 style="font-size:18px">${esc(c.title)}</h3>
+        <div class="sum-row"><span class="muted">কোর্স ফি</span><span>${fmtPrice(c.oldPrice || c.price)}</span></div>
+        ${c.oldPrice ? `<div class="sum-row"><span class="muted">ছাড়</span><span style="color:var(--brand-d)">− ${fmtPrice(c.oldPrice - c.price)}</span></div>` : ""}
+        <div class="sum-row total"><span>মোট</span><span>${fmtPrice(c.price)}</span></div>
+        <ul class="buy-list"><li>${icon("shield", 18)} নিরাপদ ম্যানুয়াল ভেরিফিকেশন</li><li>${icon("chat", 18)} সমস্যায় ${toBn(SITE.phone)}</li></ul></div>`;
+
+      const f = $("#enrollForm"), F = f.elements;
+      F["name"].value = u.name; F["phone"].value = u.phone;
+      F["course"].value = c.title + " (" + c.id + ")"; F["amount"].value = c.price; F["account_phone"].value = u.phone;
+
+      let method = "bkash";
+      const renderPay = () => {
+        const p = SITE.payments[method];
+        $("#payTabs").innerHTML = Object.entries(SITE.payments).map(([k, v]) =>
+          `<button type="button" class="pay-tab ${k === method ? "on" : ""}" style="--pc:${v.color}" data-k="${k}">${v.label}</button>`).join("");
+        $$("#payTabs .pay-tab").forEach((b) => b.onclick = () => { method = b.dataset.k; renderPay(); });
+        $("#paySteps").innerHTML = `<ol>
+          <li>${p.label} অ্যাপ থেকে <b>Send Money</b> অপশনে যান</li>
+          <li>এই ${p.type} নম্বরে পাঠান: <span class="pay-num" id="copyNum" title="কপি করুন">${toBn(p.number)} ⧉</span></li>
+          <li>টাকার পরিমাণ: <b>${fmtPrice(c.price)}</b></li>
+          <li>পেমেন্ট শেষে পাওয়া <b>ট্রানজেকশন আইডি</b> নিচের ফর্মে লিখুন</li></ol>`;
+        $("#copyNum").onclick = () => { navigator.clipboard?.writeText(p.number); toast("নম্বর কপি হয়েছে"); };
+        F["method"].value = p.label;
+      };
+      renderPay();
+
+      const showSuccess = () => {
+        $("#checkoutView").classList.add("hidden"); $("#successView").classList.remove("hidden");
+        const e = Enroll.get(c.id) || {};
+        $("#waConfirm").href = "https://wa.me/" + SITE.whatsapp + "?text=" + encodeURIComponent(
+          `আসসালামু আলাইকুম, আমি "${c.title}" কোর্সের পেমেন্ট করেছি।\nনাম: ${u.name}\nঅ্যাকাউন্ট: ${u.phone}\nমাধ্যম: ${e.method || ""}\nTrxID: ${e.trx || ""}`);
+        scrollTo(0, 0);
+      };
+      if (st === "pending") showSuccess();
+
+      f.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const data = Object.fromEntries(new FormData(f));
+        data.trxid = data.trxid.trim().toUpperCase(); data.course_id = c.id; data.fbp = getCookie("_fbp"); data.fbc = getCookie("_fbc");
+        track("AddPaymentInfo", courseData(c));
+        if (data.trxid.length < 6) { $("#err").textContent = "সঠিক ট্রানজেকশন আইডি দিন।"; return; }
+        $("#submitBtn").disabled = true; $("#submitBtn").textContent = "জমা হচ্ছে...";
+        delete data["form-name"]; delete data["bot-field"];
+        await submitNetlify("enroll", data); // লোকালি চালালে ব্যর্থ হবে — সমস্যা নেই
+        Enroll.add(c.id, { method: data.method, trx: data.trxid, sender: data.sender, amount: c.price });
+        showSuccess();
+      });
+
+      $("#unlockForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        if (Enroll.tryUnlock(c.id, $("#unlockInput").value)) { toast("কোর্স চালু হয়েছে! 🎉"); setTimeout(() => location.href = "learn.html?id=" + c.id, 700); }
+        else toast("কোডটি সঠিক নয়", "err");
+      });
+    });
+  </script>
+</body>
+</html>

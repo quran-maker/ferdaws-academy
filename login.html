@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>লগইন — {site}</title>
+  <link rel="icon" href="favicon.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-nowa>
+  <header id="site-header"></header>
+  <main class="auth-wrap">
+    <div class="auth-side">
+      <h2>শেখার যাত্রা শুরু হোক আজই</h2>
+      <p style="color:#a7f3d0">একটি অ্যাকাউন্টেই আপনার সব কোর্স, প্রগ্রেস আর সার্টিফিকেট।</p>
+      <ul>
+        <li><svg class="ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> লাইভ ক্লাস ও রেকর্ডেড ভিডিও</li>
+        <li><svg class="ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> নিজের প্রগ্রেস ট্র্যাক করুন</li>
+        <li><svg class="ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> কোর্স শেষে সার্টিফিকেট</li>
+        <li><svg class="ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> বিকাশ / নগদ / রকেটে সহজ পেমেন্ট</li>
+      </ul>
+    </div>
+    <div class="auth-main">
+      <div class="card auth-card">
+        <div class="tabs"><button id="tLogin" class="on">লগইন</button><button id="tSignup">সাইন আপ</button></div>
+        <h2 id="aTitle" style="font-size:26px">আবার স্বাগতম!</h2>
+        <p class="muted" id="aSub">আপনার মোবাইল নম্বর ও পাসওয়ার্ড দিন</p>
+        <form class="form" id="authForm" novalidate>
+          <div class="field hidden" id="fName"><label>পূর্ণ নাম</label><input name="name" autocomplete="name"></div>
+          <div class="field"><label>মোবাইল নম্বর</label><input name="phone" type="tel" placeholder="01XXXXXXXXX" autocomplete="tel" required></div>
+          <div class="field"><label>পাসওয়ার্ড</label><input name="password" type="password" autocomplete="current-password" required></div>
+          <div class="form-err" id="err"></div>
+          <button class="btn btn-primary btn-lg btn-block" id="aBtn">লগইন করুন</button>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+  <script>
+    onReady(() => {
+      const next = qs("next") || "dashboard.html";
+      const safeNext = /^[a-z0-9-]+\.html(\?.*)?$/i.test(next) ? next : "dashboard.html";
+      if (Auth.current()) { location.replace(safeNext); return; }
+      let mode = qs("mode") === "signup" ? "signup" : "login";
+      const setMode = (m) => {
+        mode = m;
+        $("#tLogin").classList.toggle("on", m === "login"); $("#tSignup").classList.toggle("on", m === "signup");
+        $("#fName").classList.toggle("hidden", m === "login");
+        $("#aTitle").textContent = m === "login" ? "আবার স্বাগতম!" : "ফ্রি অ্যাকাউন্ট খুলুন";
+        $("#aSub").textContent = m === "login" ? "আপনার মোবাইল নম্বর ও পাসওয়ার্ড দিন" : "১ মিনিটেই রেজিস্ট্রেশন সম্পন্ন করুন";
+        $("#aBtn").textContent = m === "login" ? "লগইন করুন" : "অ্যাকাউন্ট তৈরি করুন";
+        $("#authForm").elements["password"].autocomplete = m === "login" ? "current-password" : "new-password";
+        $("#err").textContent = "";
+      };
+      $("#tLogin").onclick = () => setMode("login");
+      $("#tSignup").onclick = () => setMode("signup");
+      setMode(mode);
+
+      $("#authForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const F = e.target.elements;
+        const name = F["name"].value.trim(), phone = normPhone(F["phone"].value), password = F["password"].value;
+        try {
+          if (!/^01\d{9}$/.test(phone)) throw new Error("সঠিক ১১ সংখ্যার মোবাইল নম্বর দিন।");
+          if (password.length < 6) throw new Error("পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।");
+          if (mode === "signup") {
+            if (name.length < 2) throw new Error("আপনার নাম লিখুন।");
+            Auth.signup({ name, phone, password });
+            track("CompleteRegistration", { content_name: "Student signup" }, phone);
+            submitNetlify("signup", { name, phone });
+          } else Auth.login({ phone, password });
+          location.href = safeNext;
+        } catch (err) { $("#err").textContent = err.message; }
+      });
+    });
+  </script>
+  <!-- Netlify Forms এর জন্য লুকানো ফর্ম: নতুন রেজিস্ট্রেশনের তালিকা Forms > signup এ পাবেন -->
+  <form name="signup" data-netlify="true" hidden><input name="name"><input name="phone"></form>
+</body>
+</html>

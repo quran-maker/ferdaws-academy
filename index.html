@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{site} — অনলাইনে সহীহ কুরআন ও ইসলামিক শিক্ষা</title>
+  <meta name="description" content="ঘরে বসে অনলাইনে নূরানী, তাজবীদ, হিফজ, শিশুদের কুরআন ক্লাস, মহিলাদের কুরআন শিক্ষা ও ইসলামিক কোর্স।">
+  <link rel="icon" href="favicon.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header id="site-header"></header>
+
+  <main>
+    <!-- হিরো -->
+    <section class="hero">
+      <div class="container hero-grid">
+        <div>
+          <span class="pill"><span class="dot">নতুন</span> <span id="heroBadge">নতুন ব্যাচে ভর্তি চলছে · ফ্রি ট্রায়াল ক্লাস</span></span>
+          <h1 id="heroTitle">ঘরে বসে শিখুন<br><span class="hl">সহীহ শুদ্ধ</span> কুরআন</h1>
+          <p class="lead" id="heroSub">অভিজ্ঞ হাফেজ, কারী ও আলেমদের কাছে লাইভ ক্লাসে নূরানী, তাজবীদ, হিফজ আর ইসলামিক কোর্স — শিশু, নারী ও পুরুষ সবার জন্য।</p>
+          <form class="search-box" action="courses.html">
+            <svg class="ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input type="search" name="q" placeholder="কী শিখতে চান? যেমন: নূরানী, তাজবীদ, হিফজ" aria-label="কোর্স খুঁজুন">
+            <button class="btn btn-primary" type="submit">খুঁজুন</button>
+          </form>
+          <div class="hero-stats">
+            <div><b id="statStudents">২৫,০০০+</b><span>শিক্ষার্থী</span></div>
+            <div><b id="statCourses">৮</b><span>কোর্স</span></div>
+            <div><b>৪.৯ ★</b><span>গড় রেটিং</span></div>
+          </div>
+        </div>
+        <div class="hero-visual" id="heroVisual"></div>
+      </div>
+    </section>
+
+    <!-- ক্যাটাগরি -->
+    <section class="bg-white" style="padding-top:60px">
+      <div class="container">
+        <div class="sec-head reveal">
+          <div><span class="eyebrow">ক্যাটাগরি</span><h2>আপনার পছন্দের বিষয় বেছে নিন</h2></div>
+          <a href="courses.html" class="btn btn-ghost">সব কোর্স দেখুন →</a>
+        </div>
+        <div class="cats reveal" id="cats"></div>
+      </div>
+    </section>
+
+    <!-- লাইভ কোর্স -->
+    <section>
+      <div class="container">
+        <div class="sec-head reveal">
+          <div><span class="eyebrow">● লাইভ কোর্স</span><h2>চলমান লাইভ ব্যাচে ভর্তি হোন</h2><p>ছোট ব্যাচে সরাসরি উস্তাদের সাথে ক্লাস — প্রতিটি শিক্ষার্থীর তিলাওয়াত আলাদাভাবে শুনে সংশোধন।</p></div>
+          <a href="courses.html?type=live" class="btn btn-ghost">সব লাইভ কোর্স →</a>
+        </div>
+        <div class="grid" id="liveGrid"></div>
+      </div>
+    </section>
+
+    <!-- রেকর্ডেড কোর্স -->
+    <section class="bg-white">
+      <div class="container">
+        <div class="sec-head reveal">
+          <div><span class="eyebrow">ইসলামিক কোর্স</span><h2>নিজের সময়ে দ্বীন শিখুন</h2><p>নামাজ, দোয়া, সীরাত, হজ্জ-উমরাহ ও আরবি ভাষা — রেকর্ডেড ভিডিওতে, আজীবন অ্যাক্সেস। ফ্রি কোর্সও আছে।</p></div>
+          <a href="courses.html?cat=deen" class="btn btn-ghost">সব ইসলামিক কোর্স →</a>
+        </div>
+        <div class="grid" id="recGrid"></div>
+      </div>
+    </section>
+
+    <!-- কেন আমরা -->
+    <section class="bg-dark">
+      <div class="container">
+        <div class="sec-head reveal"><div><span class="eyebrow">কেন আমাদের সাথে শিখবেন</span><h2>আমানতের সাথে কুরআনের শিক্ষা</h2></div></div>
+        <div class="features" id="features"></div>
+      </div>
+    </section>
+
+    <!-- কীভাবে ভর্তি -->
+    <section>
+      <div class="container">
+        <div class="sec-head reveal"><div><span class="eyebrow">ভর্তি প্রক্রিয়া</span><h2>মাত্র ৪ ধাপে শুরু করুন</h2></div></div>
+        <div class="steps reveal">
+          <div class="step"><h3>কোর্স বাছাই করুন</h3><p>আপনার বা সন্তানের উপযোগী কোর্স বেছে নিন, চাইলে আগে ফ্রি ট্রায়াল ক্লাস করুন।</p></div>
+          <div class="step"><h3>অ্যাকাউন্ট খুলুন</h3><p>মোবাইল নম্বর দিয়ে ১ মিনিটে ফ্রি অ্যাকাউন্ট।</p></div>
+          <div class="step"><h3>পেমেন্ট করুন</h3><p>বিকাশ, নগদ বা রকেটে টাকা পাঠিয়ে ট্রানজেকশন আইডি দিন।</p></div>
+          <div class="step"><h3>ক্লাস শুরু করুন</h3><p>যাচাই শেষে আনলক কোড পেলেই ড্যাশবোর্ড থেকে ক্লাস শুরু।</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- রিভিউ -->
+    <section class="bg-white">
+      <div class="container">
+        <div class="sec-head reveal"><div><span class="eyebrow">শিক্ষার্থীদের কথা</span><h2>শিক্ষার্থী ও অভিভাবকদের কথা</h2></div></div>
+        <div class="testis reveal" id="testis"></div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq">
+      <div class="container">
+        <div class="sec-head reveal" style="justify-content:center;text-align:center"><div><span class="eyebrow">সাধারণ প্রশ্ন</span><h2>আপনার প্রশ্নের উত্তর</h2></div></div>
+        <div class="faq reveal" id="faqList"></div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section style="padding-top:0">
+      <div class="container">
+        <div class="cta reveal">
+          <div><h2 id="ctaTitle">একটি ফ্রি ট্রায়াল ক্লাস করে দেখুন</h2><p id="ctaSub">আপনার বা আপনার সন্তানের জন্য ফ্রি ক্লাস বুক করতে এখনই মেসেজ বা কল করুন।</p></div>
+          <div class="btns">
+            <a class="btn btn-light btn-lg" id="ctaCall" href="#">📞 কল করুন</a>
+            <a class="btn btn-primary btn-lg" id="ctaWa" href="#" target="_blank" rel="noopener">এখনই মেসেজ করুন</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- যোগাযোগ -->
+    <section class="bg-white" id="contact">
+      <div class="container">
+        <div class="sec-head reveal"><div><span class="eyebrow">যোগাযোগ</span><h2>আমাদের সাথে কথা বলুন</h2></div></div>
+        <div class="contact-grid">
+          <div class="contact-info reveal" id="contactInfo"></div>
+          <div class="card box reveal">
+            <!-- Netlify Forms: সাবমিশন Netlify ড্যাশবোর্ডের Forms এ জমা হবে -->
+            <form class="form" name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field" id="contactForm">
+              <input type="hidden" name="form-name" value="contact">
+              <p class="hp"><label>এটা পূরণ করবেন না <input name="bot-field"></label></p>
+              <div class="form-row">
+                <div class="field"><label>আপনার নাম</label><input name="name" required></div>
+                <div class="field"><label>মোবাইল নম্বর</label><input name="phone" type="tel" required></div>
+              </div>
+              <div class="field"><label>কোন কোর্সে আগ্রহী?</label><select name="course" id="contactCourse"><option value="">বেছে নিন</option></select></div>
+              <div class="field"><label>বার্তা</label><textarea name="message" rows="4"></textarea></div>
+              <button class="btn btn-primary btn-lg" type="submit">বার্তা পাঠান</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer id="site-footer"></footer>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+  <script>
+    onReady(() => {
+      const total = COURSES.reduce((s, c) => s + (Number(c.students) || 0), 0);
+      $("#statStudents").textContent = fmtNum(total) + "+";
+      $("#statCourses").textContent = toBn(COURSES.length);
+
+      // অ্যাডমিন প্যানেল থেকে বদলানো লেখা
+      const H = SITE.hero || {}, C = SITE.cta || {};
+      if (H.badge) $("#heroBadge").textContent = H.badge;
+      if (H.title) $("#heroTitle").innerHTML = `${esc(H.title)}<br><span class="hl">${esc(H.highlight || "")}</span> ${esc(H.title2 || "")}`;
+      if (H.sub) $("#heroSub").textContent = H.sub;
+      if (C.title) $("#ctaTitle").textContent = C.title;
+      if (C.sub) $("#ctaSub").textContent = C.sub;
+
+      // হিরো ভিজ্যুয়াল
+      const hc = COURSES[0];
+      if (H.image) $("#heroVisual").innerHTML = `<div class="hv-card hv-main" style="inset:20px"><img src="${esc(H.image)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:20px"></div>
+        <div class="hv-card hv-float hv-f2"><span class="fi" style="background:#ef4444">${icon("live", 22)}</span><div><b>লাইভ ক্লাস</b>নতুন ব্যাচ চলছে</div></div>`;
+      else if (hc) $("#heroVisual").innerHTML = `
+        <div class="hv-card hv-main">${thumb(hc)}
+          <div class="hv-body"><h4>${esc(hc.title)}</h4>
+            <div class="prog" style="margin:12px 0 8px"><i style="width:68%"></i></div>
+            <small class="muted">৬৮% সম্পন্ন · সবক ৮ চলছে</small></div></div>
+        <div class="hv-card hv-float hv-f1"><span class="fi" style="background:#19a64f">${icon("award", 22)}</span><div><b>সার্টিফিকেট</b>কোর্স শেষে</div></div>
+        <div class="hv-card hv-float hv-f2"><span class="fi" style="background:#ef4444">${icon("live", 22)}</span><div><b>লাইভ ক্লাস</b>আজ বাদ মাগরিব</div></div>`;
+
+      $("#cats").innerHTML = CATEGORIES.map((c) => {
+        const n = COURSES.filter((x) => x.category === c.id).length;
+        return `<a class="cat" href="courses.html?cat=${c.id}"><span class="ci">${icon(c.icon, 22)}</span><div><b>${c.name}</b><br><small>${toBn(n)}টি কোর্স</small></div></a>`;
+      }).join("");
+
+      $("#liveGrid").innerHTML = COURSES.filter((c) => c.type === "live").slice(0, 4).map(courseCard).join("");
+      $("#recGrid").innerHTML = COURSES.filter((c) => c.type === "recorded").slice(0, 4).map(courseCard).join("");
+
+      const fcol = ["#19a64f", "#2f6fa6", "#d4a017", "#12863e"];
+      $("#features").innerHTML = (SITE.features || []).map((f, i) =>
+        `<div class="feature reveal" style="transition-delay:${i * 80}ms"><span class="fi" style="background:${fcol[i % 4]}">${icon(f.icon || "check", 24)}</span><h3>${esc(f.title)}</h3><p>${esc(f.text)}</p></div>`).join("");
+
+      const star = icon("star", 16, "fill");
+      $("#testis").innerHTML = TESTIMONIALS.map((t) =>
+        `<div class="card testi"><div class="stars">${star.repeat(Math.max(1, Math.min(5, Number(t.stars) || 5)))}</div><p>“${esc(t.text)}”</p>
+         <div class="who">${t.photo ? `<img src="${esc(t.photo)}" alt="" style="width:44px;height:44px;border-radius:50%;object-fit:cover">` : `<i>${esc(String(t.name || "?").replace("মো. ", "")[0])}</i>`}<div><b>${esc(t.name)}</b><small>${esc(t.role)}</small></div></div></div>`).join("");
+
+      $("#faqList").innerHTML = FAQS.map((f) =>
+        `<details><summary>${esc(f.q)} ${icon("chevron", 20)}</summary><div class="ans">${esc(f.a)}</div></details>`).join("");
+
+      $("#ctaCall").href = "tel:" + SITE.phone;
+      $("#ctaWa").href = "https://wa.me/" + SITE.whatsapp + "?text=" + encodeURIComponent("আসসালামু আলাইকুম, আমি একটি ফ্রি ট্রায়াল ক্লাস বুক করতে চাই।");
+      $("#ctaWa").addEventListener("click", () => track("Contact", { content_name: "Free trial WhatsApp" }));
+      $("#contactInfo").innerHTML = `
+        <a class="card ci-row" href="tel:${SITE.phone}"><span class="ci-ic">${icon("phone")}</span><div><small>ফোন</small><b>${toBn(SITE.phone)}</b></div></a>
+        <a class="card ci-row" href="https://wa.me/${SITE.whatsapp}" target="_blank" rel="noopener"><span class="ci-ic">${icon("chat")}</span><div><small>WhatsApp</small><b>${toBn(SITE.phone)}</b></div></a>
+        <a class="card ci-row" href="mailto:${SITE.email}"><span class="ci-ic">${icon("mail")}</span><div><small>ইমেইল</small><b>${esc(SITE.email)}</b></div></a>
+        <div class="card ci-row"><span class="ci-ic">${icon("map")}</span><div><small>ঠিকানা</small><b>${esc(SITE.address)}</b></div></div>`;
+      $("#contactCourse").innerHTML += COURSES.map((c) => `<option>${esc(c.title)}</option>`).join("");
+
+      $("#contactForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const data = Object.fromEntries(new FormData(e.target));
+        delete data["form-name"];
+        track("Lead", { content_name: data.course || "Contact form" }, data.phone);
+        const ok = await submitNetlify("contact", data);
+        if (ok || location.hostname === "localhost" || location.protocol === "file:") {
+          e.target.reset(); toast("ধন্যবাদ! আমরা শীঘ্রই আপনার সাথে যোগাযোগ করব।");
+        } else toast("বার্তা পাঠানো যায়নি, WhatsApp এ যোগাযোগ করুন।", "err");
+      });
+    });
+  </script>
+</body>
+</html>

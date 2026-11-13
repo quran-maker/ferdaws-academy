@@ -1,0 +1,20 @@
+# Netlify কনফিগারেশন
+# সব ফাইল এক জায়গায় রাখা আছে। বিল্ডের সময় api.mjs নিজে থেকে netlify/functions এ কপি হয় (সার্ভার), আর বাকি ফাইল dist এ (ওয়েবসাইট)।
+[build]
+  command = "mkdir -p dist netlify/functions && cp api.mjs netlify/functions/ && cp *.html app.js data.js style.css *.png dist/"
+  publish = "dist"
+
+[functions]
+  directory = "netlify/functions"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+[[headers]]
+  for = "/admin.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"

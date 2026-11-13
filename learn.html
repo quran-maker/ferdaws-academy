@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ক্লাস — {site}</title>
+  <link rel="icon" href="favicon.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-nowa>
+  <header id="site-header"></header>
+  <main class="learn">
+    <div class="player-col">
+      <div class="player" id="player"></div>
+      <div class="lesson-bar">
+        <div><small style="color:#94a3b8" id="modName"></small><h2 id="lesTitle"></h2></div>
+        <div class="btns">
+          <button class="btn btn-outline-l" id="prevBtn">← আগের</button>
+          <button class="btn btn-primary" id="doneBtn"></button>
+        </div>
+      </div>
+      <p style="color:#94a3b8" id="lesNote"></p>
+    </div>
+    <aside class="side-col">
+      <div class="side-head">
+        <h3 id="cTitle"></h3>
+        <div class="prog"><i id="progBar" style="width:0"></i></div>
+        <small class="muted" id="progTxt"></small>
+      </div>
+      <div class="side-list" id="sideList"></div>
+    </aside>
+  </main>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+  <script>
+    onReady(() => {
+      const c = getCourse(qs("id"));
+      if (!c) { location.replace("courses.html"); return; }
+      document.title = c.title + " — " + SITE.name;
+      const lessons = allLessons(c);
+      const isActive = () => Enroll.status(c.id) === "active";
+      const canWatch = (l) => isActive() || l.free;
+      let cur = lessons.find((l) => l.id === qs("l")) || lessons.find(canWatch) || lessons[0];
+
+      $("#cTitle").textContent = c.title;
+
+      const render = () => {
+        const e = Enroll.get(c.id) || {};
+        const done = new Set(e.done || []);
+        const idx = lessons.indexOf(cur);
+        const mod = c.modules.find((m) => m.lessons.includes(cur));
+        const p = Enroll.progress(c.id);
+        $("#progBar").style.width = p + "%";
+        $("#progTxt").textContent = isActive() ? `${toBn(p)}% সম্পন্ন · ${toBn(done.size)}/${toBn(lessons.length)} লেসন` : "ফ্রি প্রিভিউ মোড";
+
+        $("#sideList").innerHTML = c.modules.map((m) => `<div class="side-mod">${esc(m.title)}</div>` + m.lessons.map((l) => {
+          const ok = canWatch(l);
+          return `<button class="side-les ${l === cur ? "cur" : ""} ${done.has(l.id) ? "done" : ""} ${ok ? "" : "lock"}" data-id="${l.id}">
+            <span class="chk">${done.has(l.id) ? icon("check", 14) : ok ? "" : icon("lock", 12)}</span>
+            <span class="t">${esc(l.title)}<small>${icon("video", 13)} ${esc(l.duration)} ${l.free && !isActive() ? "· প্রিভিউ" : ""}</small></span></button>`;
+        }).join("")).join("");
+        $$(".side-les").forEach((b) => b.onclick = () => { cur = lessons.find((l) => l.id === b.dataset.id); history.replaceState(null, "", `learn.html?id=${c.id}&l=${cur.id}`); render(); scrollTo({ top: 0, behavior: "smooth" }); });
+
+        $("#modName").textContent = mod.title;
+        $("#lesTitle").textContent = cur.title;
+
+        if (!canWatch(cur)) {
+          const pending = Enroll.status(c.id) === "pending";
+          $("#player").innerHTML = `<div class="player-ph locked"><div><div class="pb">${icon("lock", 36)}</div>
+            <h3 style="color:#fff">এই লেসনটি লক করা</h3>
+            <p style="color:#94a3b8">${pending ? "আপনার পেমেন্ট যাচাই হচ্ছে। আনলক কোড পেলে ড্যাশবোর্ডে দিন।" : "পুরো কোর্স দেখতে এনরোল করুন।"}</p>
+            <a class="btn btn-primary" href="${pending ? "dashboard.html" : c.price === 0 ? "course.html?id=" + c.id : "checkout.html?id=" + c.id}">${pending ? "ড্যাশবোর্ডে যান" : "এনরোল করুন — " + fmtPrice(c.price)}</a></div></div>`;
+        } else if (cur.video) {
+          $("#player").innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(ytId(cur.video))}?rel=0&modestbranding=1" title="${esc(cur.title)}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+        } else {
+          $("#player").innerHTML = `<div class="player-ph" style="--c1:${c.colors[0]};--c2:${c.colors[1]}"><div>
+            <div class="pb">${icon("play", 36)}</div><h3 style="color:#fff;margin:0">${esc(cur.title)}</h3>
+            <p style="opacity:.85;margin:6px 0 0">ভিডিও শীঘ্রই যোগ করা হবে</p></div></div>`;
+        }
+        $("#lesNote").textContent = canWatch(cur) ? "প্রশ্ন থাকলে সাপোর্ট গ্রুপে বা WhatsApp এ জানান। লেসন শেষে “সম্পন্ন” চাপুন।" : "";
+
+        $("#prevBtn").disabled = idx === 0;
+        $("#prevBtn").onclick = () => { cur = lessons[idx - 1]; render(); };
+        const db = $("#doneBtn");
+        if (!isActive()) {
+          db.innerHTML = c.price === 0 ? "ফ্রিতে এনরোল করুন" : "এনরোল করুন " + icon("arrow", 16);
+          db.onclick = () => location.href = c.price === 0 ? "course.html?id=" + c.id : "checkout.html?id=" + c.id;
+        } else {
+          const last = idx === lessons.length - 1;
+          db.innerHTML = done.has(cur.id) ? (last ? icon("award", 16) + " সার্টিফিকেট" : "পরের লেসন " + icon("arrow", 16)) : icon("check", 16) + " সম্পন্ন ও পরেরটি";
+          db.onclick = () => {
+            Enroll.toggleDone(c.id, cur.id, true);
+            if (Enroll.progress(c.id) === 100 && last) { toast("অভিনন্দন! কোর্স সম্পন্ন হয়েছে 🎉"); setTimeout(() => location.href = "certificate.html?id=" + c.id, 900); return; }
+            if (last) toast("সার্টিফিকেটের জন্য সব লেসন সম্পন্ন করুন", "err");
+            else cur = lessons[idx + 1];
+            render();
+          };
+        }
+      };
+      render();
+      Enroll.sync().then((n) => { if (n) { toast("আপনার কোর্স চালু হয়েছে! 🎉"); render(); } });
+    });
+  </script>
+</body>
+</html>

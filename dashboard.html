@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ড্যাশবোর্ড — {site}</title>
+  <link rel="icon" href="favicon.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header id="site-header"></header>
+  <main>
+    <div class="page-head" style="padding-bottom:76px">
+      <div class="container">
+        <h1 id="hello" style="margin-bottom:4px">স্বাগতম!</h1>
+        <p>আপনার কোর্স, প্রগ্রেস ও সার্টিফিকেট এক জায়গায়।</p>
+      </div>
+    </div>
+    <div class="container">
+      <div class="dash-stats" id="stats"></div>
+      <div class="sec-head" style="margin-bottom:18px"><h2 style="font-size:26px">আমার কোর্স</h2><a class="btn btn-ghost" href="courses.html">আরও কোর্স খুঁজুন</a></div>
+      <div class="my-courses" id="list"></div>
+    </div>
+  </main>
+  <footer id="site-footer"></footer>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+  <script>
+    onReady(() => {
+      const render = () => {
+        const u = Auth.require(); if (!u) return;
+        $("#hello").textContent = "আসসালামু আলাইকুম, " + u.name.split(" ")[0] + "!";
+        const ens = Object.entries(u.enrollments).map(([id, e]) => ({ c: getCourse(id), e })).filter((x) => x.c);
+        const active = ens.filter((x) => x.e.status === "active");
+        const doneLessons = ens.reduce((s, x) => s + (x.e.done || []).length, 0);
+        const certs = active.filter((x) => Enroll.progress(x.c.id) === 100).length;
+        const stat = (ic, col, n, l) => `<div class="card stat"><span class="si" style="background:${col}">${icon(ic, 22)}</span><div><b>${toBn(n)}</b><small>${l}</small></div></div>`;
+        $("#stats").innerHTML = stat("book", "#10b981", active.length, "চলমান কোর্স")
+          + stat("clock", "#f59e0b", ens.length - active.length, "যাচাই বাকি")
+          + stat("check", "#6366f1", doneLessons, "সম্পন্ন লেসন")
+          + stat("award", "#0ea5e9", certs, "সার্টিফিকেট");
+
+        if (!ens.length) {
+          $("#list").innerHTML = `<div class="card empty">${icon("book", 56)}<h3>এখনো কোনো কোর্সে ভর্তি হননি</h3><p>পছন্দের কোর্স বেছে নিয়ে আজই শুরু করুন।</p><a class="btn btn-primary" href="courses.html">কোর্স দেখুন</a></div>`;
+          return;
+        }
+        ens.sort((a, b) => b.e.date - a.e.date);
+        $("#list").innerHTML = ens.map(({ c, e }) => {
+          const p = Enroll.progress(c.id);
+          const pending = e.status !== "active";
+          return `<div class="card mc">
+            ${thumb(c)}
+            <div>
+              <span class="status ${pending ? "pending" : "active"}">${pending ? icon("clock", 14) + " পেমেন্ট যাচাই হচ্ছে" : icon("check", 14) + " সক্রিয়"}</span>
+              <h3 style="margin-top:8px">${esc(c.title)}</h3>
+              ${pending
+                ? `<small class="muted">TrxID: ${esc(e.trx || "-")} · ${esc(e.method || "")} <br>অ্যাডমিন অনুমোদন দিলেই কোর্স নিজে থেকে চালু হবে। কোড পেলে নিচেও দিতে পারেন।</small>
+                   <form class="unlock" data-id="${c.id}" style="max-width:360px"><input placeholder="আনলক কোড" maxlength="6" aria-label="আনলক কোড"><button class="btn btn-primary">আনলক</button></form>`
+                : `<div class="prog"><i style="width:${p}%"></i></div><small class="muted">${toBn(p)}% সম্পন্ন · ${toBn((e.done || []).length)}/${toBn(allLessons(c).length)} লেসন</small>`}
+            </div>
+            <div class="mc-actions">
+              ${pending ? `<a class="btn btn-ghost" href="learn.html?id=${c.id}">ফ্রি প্রিভিউ দেখুন</a>`
+                : `<a class="btn btn-primary" href="learn.html?id=${c.id}">${icon("play", 16)} ${p ? "চালিয়ে যান" : "শুরু করুন"}</a>
+                   ${p === 100 ? `<a class="btn btn-ghost" href="certificate.html?id=${c.id}">${icon("award", 16)} সার্টিফিকেট</a>` : ""}`}
+            </div></div>`;
+        }).join("");
+        $$("form.unlock").forEach((f) => f.onsubmit = (ev) => {
+          ev.preventDefault();
+          if (Enroll.tryUnlock(f.dataset.id, $("input", f).value)) { toast("কোর্স চালু হয়েছে! 🎉"); render(); }
+          else toast("কোডটি সঠিক নয়", "err");
+        });
+      };
+      render();
+      Enroll.sync().then((n) => { if (n) { toast("আপনার কোর্স চালু হয়েছে! 🎉"); render(); } });
+    });
+  </script>
+</body>
+</html>

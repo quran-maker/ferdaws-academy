@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>সার্টিফিকেট — {site}</title>
+  <link rel="icon" href="favicon.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-nowa>
+  <header id="site-header"></header>
+  <main class="cert-wrap" id="app"></main>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+  <script>
+    onReady(() => {
+      const u = Auth.require(); if (!u) return;
+      const c = getCourse(qs("id"));
+      const e = c && Enroll.get(c.id);
+      if (!c || !e || e.status !== "active" || Enroll.progress(c.id) < 100) {
+        $("#app").innerHTML = `<div class="card empty" style="max-width:520px">${icon("award", 56)}<h3>সার্টিফিকেট এখনো প্রস্তুত নয়</h3><p>কোর্সের সব লেসন সম্পন্ন করলে সার্টিফিকেট পাবেন।</p><a class="btn btn-primary" href="dashboard.html">ড্যাশবোর্ডে যান</a></div>`;
+        return;
+      }
+      const d = new Date();
+      const date = toBn(d.getDate()) + " " + ["জানুয়ারি","ফেব্রুয়ারি","মার্চ","এপ্রিল","মে","জুন","জুলাই","আগস্ট","সেপ্টেম্বর","অক্টোবর","নভেম্বর","ডিসেম্বর"][d.getMonth()] + " " + toBn(d.getFullYear());
+      const certId = "CERT-" + hash(u.phone + c.id).slice(0, 8);
+      $("#app").innerHTML = `
+        <div class="no-print" style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+          <button class="btn btn-primary" onclick="print()">${icon("award", 18)} ডাউনলোড / প্রিন্ট (PDF)</button>
+          <a class="btn btn-ghost" href="dashboard.html">ড্যাশবোর্ড</a>
+        </div>
+        <div class="cert">
+          ${logoHTML()}
+          <h1>সার্টিফিকেট অব কমপ্লিশন</h1>
+          <p class="muted" style="margin:0">এই মর্মে প্রত্যয়ন করা যাচ্ছে যে</p>
+          <div><span class="nm">${esc(u.name)}</span></div>
+          <p style="max-width:640px;margin:0 auto">সফলভাবে <b>“${esc(c.title)}”</b> কোর্সটি সম্পন্ন করেছেন।</p>
+          <div class="sig">
+            <div>${esc(c.instructor.name)}<br><small class="muted">উস্তাদ</small></div>
+            <div>${date}<br><small class="muted">${certId}</small></div>
+          </div>
+        </div>`;
+    });
+  </script>
+</body>
+</html>

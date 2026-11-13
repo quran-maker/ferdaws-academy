@@ -1,0 +1,562 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>অ্যাডমিন প্যানেল — {site}</title>
+  <link rel="icon" href="favicon.png" type="image/png">
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { background: #f1f5f9; }
+    .adm { display: grid; grid-template-columns: 240px 1fr; gap: 24px; align-items: start; padding: 28px 0 120px; }
+    .adm-nav { position: sticky; top: 90px; display: grid; gap: 4px; background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 10px; }
+    .adm-nav button { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; border: 0; background: none; border-radius: 10px; cursor: pointer; text-align: left; font-weight: 500; color: var(--ink-2); }
+    .adm-nav button:hover { background: var(--bg); }
+    .adm-nav button.on { background: var(--brand-50); color: var(--brand-d); font-weight: 700; }
+    .adm-nav .cnt { margin-left: auto; background: #f59e0b; color: #fff; border-radius: 99px; font-size: 12px; padding: 0 8px; }
+    .adm-nav hr { border: 0; border-top: 1px solid var(--line); margin: 6px 0; }
+    .panel-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+    .panel-head h2 { margin: 0; font-size: 26px; }
+    .box h3 { font-size: 18px; margin-bottom: 14px; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .field input[type=color] { padding: 4px; height: 46px; }
+    .field textarea { min-height: 90px; }
+    .subs { display: grid; gap: 12px; }
+    .sub { padding: 16px 18px; display: grid; grid-template-columns: 1fr auto; gap: 14px; align-items: center; }
+    .sub h4 { font-size: 17px; margin: 6px 0 4px; }
+    .kv { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 14px; color: var(--ink-2); }
+    .kv b { color: var(--ink); }
+    .trx { font-family: ui-monospace, monospace; background: #fef9c3; padding: 1px 8px; border-radius: 6px; font-weight: 700; }
+    .acts { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+    .btn-sm { padding: 7px 12px; font-size: 14px; border-radius: 10px; }
+    .btn-danger { background: #fee2e2; color: #b91c1c; }
+    .btn-danger:hover { background: #fecaca; }
+    .row-item { display: grid; grid-template-columns: 90px 1fr auto; gap: 14px; align-items: center; padding: 12px; }
+    .row-item .thumb { height: 64px; border-radius: 10px; }
+    .row-item .thumb .thumb-ic { width: 40px; height: 40px; border-radius: 10px; }
+    .row-item .thumb .badge { display: none; }
+    .img-field { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    .img-prev { width: 120px; height: 80px; border-radius: 10px; border: 1px dashed var(--line); background: var(--bg) center / cover no-repeat; display: grid; place-items: center; color: var(--muted); font-size: 12px; }
+    .img-prev.sq { width: 80px; height: 80px; }
+    .mod { border: 1px solid var(--line); border-radius: 14px; padding: 14px; margin-bottom: 12px; background: #fafcff; }
+    .les { display: grid; grid-template-columns: 1.6fr .6fr 1fr auto auto; gap: 8px; align-items: end; margin-top: 8px; }
+    .les .field label { font-size: 12px; }
+    .les input { padding: 9px 10px !important; font-size: 14px !important; }
+    .chk-l { display: flex; gap: 6px; align-items: center; font-size: 13px; padding-bottom: 10px; white-space: nowrap; }
+    .savebar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 70; background: var(--dark); color: #fff; padding: 14px 20px; display: flex; justify-content: center; align-items: center; gap: 16px; flex-wrap: wrap; box-shadow: 0 -10px 30px rgba(0,0,0,.2); transform: translateY(110%); transition: .25s; }
+    .savebar.show { transform: none; }
+    .help { background: #fffbea; border: 1px solid #fde68a; border-radius: 14px; padding: 16px 18px; font-size: 15px; }
+    .tip { color: var(--muted); font-size: 13px; margin: -6px 0 12px; }
+    .list-card { padding: 16px; margin-bottom: 12px; }
+    .list-card .acts { margin-top: 10px; }
+    @media (max-width: 900px) {
+      .adm { grid-template-columns: 1fr; }
+      .adm-nav { position: static; display: flex; overflow-x: auto; padding: 6px; }
+      .adm-nav button { white-space: nowrap; width: auto; }
+      .adm-nav hr { display: none; }
+      .grid2, .grid3 { grid-template-columns: 1fr; }
+      .les { grid-template-columns: 1fr 1fr; }
+      .sub, .row-item { grid-template-columns: 1fr; }
+      .row-item .thumb { height: 120px; }
+      .acts { justify-content: flex-start; }
+    }
+  </style>
+</head>
+<body data-nowa>
+  <header id="site-header"></header>
+
+  <!-- লগইন -->
+  <main class="container" id="loginView" style="padding:50px 20px 80px">
+    <div class="card box" style="max-width:440px;margin:0 auto">
+      <div style="text-align:center;margin-bottom:12px"><img src="emblem.png" alt="" style="width:64px;margin:0 auto 8px"><h2 style="margin:0">অ্যাডমিন লগইন</h2><p class="muted" style="margin:0">শুধু একাডেমির দায়িত্বপ্রাপ্তদের জন্য</p></div>
+      <form class="form" id="loginForm">
+        <div class="field"><label for="lPhone">মোবাইল নম্বর</label><input id="lPhone" type="tel" placeholder="01XXXXXXXXX" autocomplete="username" required></div>
+        <div class="field"><label for="lPass">পাসওয়ার্ড</label><input id="lPass" type="password" autocomplete="current-password" required></div>
+        <div class="form-err" id="loginErr"></div>
+        <button class="btn btn-primary btn-lg btn-block" id="loginBtn">প্রবেশ করুন</button>
+      </form>
+    </div>
+  </main>
+
+  <!-- প্যানেল -->
+  <main class="container adm hidden" id="adminView">
+    <nav class="adm-nav" id="nav"></nav>
+    <section id="view" style="padding:0;min-width:0"></section>
+  </main>
+
+  <div class="savebar" id="savebar">
+    <span>⚠️ পরিবর্তনগুলো এখনো সেভ হয়নি</span>
+    <button class="btn btn-ghost btn-sm" id="discardBtn" style="color:var(--ink)">বাতিল করুন</button>
+    <button class="btn btn-primary" id="saveBtn">✓ সব পরিবর্তন সেভ করুন</button>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+  <script>
+  onReady(() => {
+    /* ================= সাধারণ ================= */
+    const SK = "lms_admin_cred";
+    let CRED = null;                 // { phone, password }
+    let C = null;                    // এডিট হচ্ছে এমন কনটেন্ট
+    let SAVED = "";                  // শেষ সেভ করা অবস্থা (JSON)
+    let SUBS = null, APPROVALS = {};
+    let TAB = "enroll", EDIT = null; // EDIT = এডিট হওয়া কোর্সের index
+    const clone = (o) => JSON.parse(JSON.stringify(o));
+    const ICON_LIST = ["book", "mic", "smile", "award", "users", "chat", "moon", "sparkles", "map", "video", "live", "star", "shield", "calendar", "clock", "check", "phone", "code", "palette", "film", "table", "megaphone"];
+
+    async function api(action, extra = {}) {
+      const r = await fetch("/api/admin", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...CRED, action, ...extra }) });
+      let j = {}; try { j = await r.json(); } catch { j = { error: "no-server" }; }
+      if (!r.ok || j.error) { const e = new Error(j.error || "server"); e.code = j.error || "server"; throw e; }
+      return j;
+    }
+    const errMsg = (e) => ({ auth: "মোবাইল নম্বর বা পাসওয়ার্ড ভুল।", "no-server": "সার্ভারের সাথে যোগাযোগ হচ্ছে না। GitHub এ api.mjs, package.json ও netlify.toml আপলোড হয়েছে কিনা আর Netlify তে Deploy সফল হয়েছে কিনা দেখুন।", "too-big": "ফাইল খুব বড়।", short: "পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে।", phone: "সঠিক মোবাইল নম্বর দিন।" }[e.code] || "সমস্যা হয়েছে: " + (e.code || e.message));
+
+    /* ================= লগইন ================= */
+    async function enter() {
+      $("#loginView").classList.add("hidden"); $("#adminView").classList.remove("hidden");
+      C = clone({ site: (({ secret, ...s }) => s)(SITE), categories: CATEGORIES, courses: COURSES, testimonials: TESTIMONIALS, faqs: FAQS });
+      C.site.hero = C.site.hero || {}; C.site.cta = C.site.cta || {}; C.site.features = C.site.features || []; C.site.payments = C.site.payments || {};
+      SAVED = JSON.stringify(C);
+      render(); loadSubs();
+    }
+    try { const s = JSON.parse(sessionStorage.getItem(SK) || "null"); if (s) { CRED = s; api("login").then(enter).catch(() => sessionStorage.removeItem(SK)); } } catch {}
+    $("#loginForm").onsubmit = async (e) => {
+      e.preventDefault();
+      CRED = { phone: normPhone($("#lPhone").value), password: $("#lPass").value };
+      $("#loginBtn").disabled = true; $("#loginErr").textContent = "";
+      try { await api("login"); try { sessionStorage.setItem(SK, JSON.stringify(CRED)); } catch {} enter(); }
+      catch (err) { $("#loginErr").textContent = errMsg(err); }
+      $("#loginBtn").disabled = false;
+    };
+
+    /* ================= সেভ ================= */
+    const dirty = () => C && JSON.stringify(C) !== SAVED;
+    const updBar = () => $("#savebar").classList.toggle("show", dirty());
+    window.addEventListener("beforeunload", (e) => { if (dirty()) { e.preventDefault(); e.returnValue = ""; } });
+    $("#discardBtn").onclick = () => { if (confirm("সেভ না করা সব পরিবর্তন বাদ যাবে। নিশ্চিত?")) { C = JSON.parse(SAVED); EDIT = null; render(); } };
+    $("#saveBtn").onclick = async () => {
+      const b = $("#saveBtn"); b.disabled = true; b.textContent = "সেভ হচ্ছে...";
+      try { await api("save", { content: C }); SAVED = JSON.stringify(C); toast("সেভ হয়েছে! ওয়েবসাইটে এখনই দেখা যাবে।"); }
+      catch (err) { toast(errMsg(err), "err"); }
+      b.disabled = false; b.textContent = "✓ সব পরিবর্তন সেভ করুন"; updBar();
+    };
+
+    /* ================= ফর্ম বাইন্ডিং ================= */
+    const getP = (path) => path.split(".").reduce((o, k) => (o == null ? undefined : o[k]), C);
+    const setP = (path, v) => { const ks = path.split("."); const last = ks.pop(); const o = ks.reduce((o, k) => (o[k] ??= {}), C); o[last] = v; };
+    const val = (p) => esc(getP(p) ?? "");
+    const inp = (label, p, opt = {}) => `<div class="field"><label>${label}</label>${opt.area
+      ? `<textarea data-p="${p}" ${opt.lines ? "data-lines" : ""} rows="${opt.rows || 3}">${esc(opt.lines ? (getP(p) || []).join("\n") : getP(p) ?? "")}</textarea>`
+      : `<input data-p="${p}" type="${opt.type || "text"}" ${opt.num ? "data-num" : ""} value="${val(p)}" ${opt.ph ? `placeholder="${esc(opt.ph)}"` : ""}>`}
+      ${opt.tip ? `<small>${opt.tip}</small>` : ""}</div>`;
+    const sel = (label, p, opts) => `<div class="field"><label>${label}</label><select data-p="${p}">${opts.map(([v, t]) => `<option value="${esc(v)}" ${String(getP(p)) === String(v) ? "selected" : ""}>${esc(t)}</option>`).join("")}</select></div>`;
+    const imgF = (label, p, sq) => { const u = getP(p); return `<div class="field"><label>${label}</label><div class="img-field">
+      <div class="img-prev ${sq ? "sq" : ""}" style="${u ? `background-image:url('${esc(u)}')` : ""}">${u ? "" : "ছবি নেই"}</div>
+      <label class="btn btn-ghost btn-sm" style="cursor:pointer">📤 ছবি আপলোড<input type="file" accept="image/*" data-img="${p}" hidden></label>
+      ${u ? `<button type="button" class="btn btn-danger btn-sm" data-imgdel="${p}">মুছুন</button>` : ""}</div></div>`; };
+
+    function bind(root) {
+      $$("[data-p]", root).forEach((el) => {
+        el.addEventListener(el.tagName === "SELECT" || el.type === "checkbox" ? "change" : "input", () => {
+          let v = el.type === "checkbox" ? el.checked : el.value;
+          if (el.dataset.num !== undefined) v = v === "" ? 0 : Number(v);
+          if (el.dataset.lines !== undefined) v = v.split("\n").map((s) => s.trim()).filter(Boolean);
+          setP(el.dataset.p, v); updBar();
+        });
+      });
+      $$("[data-img]", root).forEach((el) => el.onchange = async () => {
+        const f = el.files[0]; if (!f) return;
+        toast("ছবি আপলোড হচ্ছে...");
+        try { const url = await uploadImage(f); setP(el.dataset.img, url); render(); toast("ছবি আপলোড হয়েছে — সেভ করতে ভুলবেন না"); }
+        catch (err) { toast(errMsg(err), "err"); }
+      });
+      $$("[data-imgdel]", root).forEach((b) => b.onclick = () => { setP(b.dataset.imgdel, ""); render(); });
+    }
+
+    // ছবি ছোট করে আপলোড (সর্বোচ্চ ১৪০০px)
+    function uploadImage(file) {
+      return new Promise((res, rej) => {
+        const fr = new FileReader();
+        fr.onload = () => {
+          const img = new Image();
+          img.onload = async () => {
+            const max = 1400, s = Math.min(1, max / Math.max(img.width, img.height));
+            const cv = document.createElement("canvas"); cv.width = Math.round(img.width * s); cv.height = Math.round(img.height * s);
+            cv.getContext("2d").drawImage(img, 0, 0, cv.width, cv.height);
+            const png = file.type === "image/png" && file.size < 400000;
+            const type = png ? "image/png" : "image/jpeg";
+            const data = cv.toDataURL(type, 0.86).split(",")[1];
+            try { res((await api("upload", { type, data })).url); } catch (e) { rej(e); }
+          };
+          img.onerror = () => rej(new Error("ছবিটি পড়া যায়নি"));
+          img.src = fr.result;
+        };
+        fr.readAsDataURL(file);
+      });
+    }
+
+    /* ================= নেভিগেশন ================= */
+    const NAV = [
+      ["enroll", "clock", "ভর্তি ও পেমেন্ট"], ["signup", "users", "রেজিস্ট্রেশন"], ["contact", "chat", "মেসেজ"], ["-"],
+      ["courses", "book", "কোর্স"], ["cats", "grid", "ক্যাটাগরি"], ["home", "star", "হোমপেজের লেখা"], ["reviews", "smile", "রিভিউ"], ["faq", "shield", "প্রশ্নোত্তর"], ["-"],
+      ["settings", "phone", "সাইট সেটিংস ও লোগো"], ["tracking", "live", "ট্র্যাকিং (Pixel)"], ["security", "lock", "পাসওয়ার্ড"], ["logout", "logout", "লগআউট"]
+    ];
+    function renderNav() {
+      const pend = SUBS ? SUBS.enroll.filter((s) => !isApproved(s)).length : 0;
+      $("#nav").innerHTML = NAV.map(([id, ic, t]) => id === "-" ? "<hr>" :
+        `<button data-tab="${id}" class="${TAB === id ? "on" : ""}">${icon(ic, 18)} ${t}${id === "enroll" && pend ? `<span class="cnt">${toBn(pend)}</span>` : ""}</button>`).join("");
+      $$("#nav [data-tab]").forEach((b) => b.onclick = () => {
+        if (b.dataset.tab === "logout") { if (dirty() && !confirm("সেভ না করা পরিবর্তন আছে। তবুও লগআউট করবেন?")) return; sessionStorage.removeItem(SK); SAVED = JSON.stringify(C); location.reload(); return; }
+        TAB = b.dataset.tab; EDIT = null; render(); scrollTo({ top: 0 });
+      });
+    }
+
+    function render() {
+      renderNav();
+      const v = $("#view");
+      const fn = { enroll: vEnroll, signup: vPeople, contact: vPeople, courses: vCourses, cats: vCats, home: vHome, reviews: vReviews, faq: vFaq, settings: vSettings, tracking: vTracking, security: vSecurity }[TAB];
+      v.innerHTML = fn();
+      bind(v); afterRender[TAB]?.(); updBar();
+    }
+    const afterRender = {};
+
+    /* ================= ভর্তি ও পেমেন্ট ================= */
+    const courseOf = (d) => getCourse(d.course_id) || (() => { const m = /\(([a-z0-9-]+)\)\s*$/.exec(d.course || ""); return m ? getCourse(m[1]) : null; })();
+    const C_get = (id) => (C ? C.courses.find((c) => c.id === id) : null) || getCourse(id);
+    const studentPhone = (d) => normPhone(d.account_phone || d.phone);
+    const isApproved = (s) => { const c = courseOf(s.data); return c && !!APPROVALS[studentPhone(s.data) + "|" + c.id]; };
+    const fmtDate = (d) => { const x = new Date(d); return toBn(x.toLocaleDateString("en-GB")) + " · " + toBn(x.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })); };
+
+    async function loadSubs() {
+      try { const j = await api("list"); SUBS = j.subs; APPROVALS = j.approvals || {}; }
+      catch (e) { SUBS = { enroll: [], signup: [], contact: [], error: errMsg(e) }; }
+      if (["enroll", "signup", "contact"].includes(TAB)) render(); else renderNav();
+    }
+
+    function vEnroll() {
+      const head = `<div class="panel-head"><div><span class="eyebrow">ভর্তি ও পেমেন্ট</span><h2>নতুন ভর্তির আবেদন</h2></div><button class="btn btn-ghost" id="reload">↻ রিফ্রেশ</button></div>`;
+      if (!SUBS) return head + `<p class="muted">লোড হচ্ছে...</p>`;
+      if (SUBS.error) return head + `<div class="help">${esc(SUBS.error)}</div>`;
+      const list = SUBS.enroll, pend = list.filter((s) => !isApproved(s));
+      const stat = (ic, col, n, l) => `<div class="card stat"><span class="si" style="background:${col}">${icon(ic, 22)}</span><div><b>${toBn(n)}</b><small>${l}</small></div></div>`;
+      return head + `<div class="dash-stats" style="margin:0 0 20px">${stat("clock", "#d4a017", pend.length, "অনুমোদন বাকি")}${stat("check", "#19a64f", list.length - pend.length, "অনুমোদিত")}${stat("users", "#164673", SUBS.signup.length, "রেজিস্ট্রেশন")}${stat("chat", "#2f6fa6", SUBS.contact.length, "মেসেজ")}</div>
+        <div class="help" style="margin-bottom:16px">বিকাশ/নগদ/রকেট অ্যাপে <b>TrxID</b> মিলিয়ে দেখুন। টাকা এসে থাকলে <b>“অনুমোদন করুন”</b> চাপুন — শিক্ষার্থীর কোর্স নিজে থেকেই চালু হয়ে যাবে, আর WhatsApp এ তাকে জানানোর মেসেজ খুলবে।</div>
+        <div class="search-box" style="max-width:none;margin:0 0 14px;box-shadow:none"><input type="search" id="q" placeholder="নাম, মোবাইল বা TrxID দিয়ে খুঁজুন..." style="padding:6px 10px"></div>
+        <div class="subs" id="subList"></div>`;
+    }
+    afterRender.enroll = () => {
+      if (!SUBS || SUBS.error) { $("#reload") && ($("#reload").onclick = () => { SUBS = null; render(); loadSubs(); }); return; }
+      $("#reload").onclick = () => { SUBS = null; render(); loadSubs(); };
+      const draw = () => {
+        const q = ($("#q").value || "").toLowerCase();
+        const list = SUBS.enroll.filter((s) => !q || JSON.stringify(s.data).toLowerCase().includes(q))
+          .sort((a, b) => (isApproved(a) - isApproved(b)) || (a.date < b.date ? 1 : -1));
+        $("#subList").innerHTML = list.length ? list.map((s) => {
+          const d = s.data, c = courseOf(d), ok = isApproved(s);
+          return `<div class="card sub"><div>
+            <span class="status ${ok ? "active" : "pending"}">${ok ? icon("check", 14) + " অনুমোদিত" : icon("clock", 14) + " অনুমোদন বাকি"}</span>
+            <h4>${esc(d.name)} — ${esc(c ? c.title : d.course)}</h4>
+            <div class="kv"><span>পেমেন্ট: <b>${esc(d.method)} ${d.amount ? fmtPrice(d.amount) : ""}</b></span><span>TrxID: <span class="trx">${esc(d.trxid)}</span></span>
+              <span>পাঠানো নম্বর: <b>${esc(d.sender)}</b></span><span>অ্যাকাউন্ট: <b>${esc(studentPhone(d))}</b></span><span>${fmtDate(s.date)}</span></div></div>
+            <div class="acts">${c ? (ok ? `<button class="btn btn-ghost btn-sm" data-wa="${s.key}">WhatsApp</button><button class="btn btn-ghost btn-sm" data-unap="${s.key}">অনুমোদন বাতিল</button>`
+              : `<button class="btn btn-primary btn-sm" data-ap="${s.key}">✓ অনুমোদন করুন</button>`) : `<small class="muted">কোর্স পাওয়া যায়নি</small>`}
+              <button class="btn btn-danger btn-sm" data-del="${s.key}">মুছুন</button></div></div>`;
+        }).join("") : `<div class="card empty">${icon("book", 48)}<p>এখনো কোনো ভর্তির আবেদন আসেনি।</p></div>`;
+        const find = (k) => SUBS.enroll.find((x) => x.key === k);
+        const waMsg = (s) => { const d = s.data, c = courseOf(d), p = studentPhone(d);
+          return "https://wa.me/88" + p + "?text=" + encodeURIComponent(`আসসালামু আলাইকুম ${d.name}!\nআপনার পেমেন্ট যাচাই হয়েছে, "${c.title}" কোর্সটি চালু করা হয়েছে।\nওয়েবসাইটে লগইন করে ক্লাস শুরু করুন: ${location.origin}/dashboard.html\n\n(কোর্স চালু না দেখালে এই কোডটি দিন: ${unlockCode(p, c.id)})`); };
+        $$("[data-ap]").forEach((b) => b.onclick = async () => {
+          const s = find(b.dataset.ap), c = courseOf(s.data); const w = window.open("about:blank", "_blank");
+          try {
+            const d = s.data;
+            const r = await api("approve", { studentPhone: studentPhone(d), course: c.id, on: true, value: Number(d.amount) || Number(c.price) || 0, courseName: c.title,
+              siteUrl: location.origin + "/checkout.html?id=" + c.id, fbp: d.fbp, fbc: d.fbc, ua: d._ua, ip: d._ip });
+            APPROVALS = r.approvals;
+            toast(r.capi && r.capi.ok ? "অনুমোদন হয়েছে · Facebook এ Purchase পাঠানো হয়েছে" : "অনুমোদন হয়েছে");
+            if (r.capi && r.capi.ok === false) toast("Purchase ইভেন্ট যায়নি: " + r.capi.error, "err");
+            if (w) w.location = waMsg(s); render();
+          }
+          catch (e) { w && w.close(); toast(errMsg(e), "err"); }
+        });
+        $$("[data-unap]").forEach((b) => b.onclick = async () => {
+          if (!confirm("অনুমোদন বাতিল করবেন?")) return;
+          const s = find(b.dataset.unap), c = courseOf(s.data);
+          try { APPROVALS = (await api("approve", { studentPhone: studentPhone(s.data), course: c.id, on: false })).approvals; render(); } catch (e) { toast(errMsg(e), "err"); }
+        });
+        $$("[data-wa]").forEach((b) => b.onclick = () => window.open(waMsg(find(b.dataset.wa)), "_blank", "noopener"));
+        bindDelete("enroll", draw);
+      };
+      $("#q").oninput = draw; draw();
+    };
+    function bindDelete(form, redraw) {
+      $$("[data-del]").forEach((b) => b.onclick = async () => {
+        if (!confirm("এটি স্থায়ীভাবে মুছে যাবে। নিশ্চিত?")) return;
+        try { await api("delete", { key: b.dataset.del }); SUBS[form] = SUBS[form].filter((x) => x.key !== b.dataset.del); redraw(); renderNav(); toast("মুছে ফেলা হয়েছে"); }
+        catch (e) { toast(errMsg(e), "err"); }
+      });
+    }
+
+    /* ================= রেজিস্ট্রেশন ও মেসেজ ================= */
+    function vPeople() {
+      const t = TAB === "signup" ? "নতুন রেজিস্ট্রেশন" : "যোগাযোগ ফর্মের মেসেজ";
+      const head = `<div class="panel-head"><div><span class="eyebrow">${TAB === "signup" ? "রেজিস্ট্রেশন" : "মেসেজ"}</span><h2>${t}</h2></div><button class="btn btn-ghost" id="reload">↻ রিফ্রেশ</button></div>`;
+      if (!SUBS) return head + `<p class="muted">লোড হচ্ছে...</p>`;
+      if (SUBS.error) return head + `<div class="help">${esc(SUBS.error)}</div>`;
+      const list = SUBS[TAB];
+      return head + `<div class="subs" id="subList">${list.length ? list.map((s) => { const d = s.data, p = normPhone(d.phone);
+        return `<div class="card sub"><div><h4>${esc(d.name || "-")}</h4>
+          <div class="kv"><span>মোবাইল: <b>${esc(d.phone)}</b></span>${d.course ? `<span>কোর্স: <b>${esc(d.course)}</b></span>` : ""}<span>${fmtDate(s.date)}</span></div>
+          ${d.message ? `<p style="margin:8px 0 0">${esc(d.message)}</p>` : ""}</div>
+          <div class="acts">${/^01\d{9}$/.test(p) ? `<a class="btn btn-ghost btn-sm" target="_blank" rel="noopener" href="https://wa.me/88${p}">WhatsApp</a><a class="btn btn-ghost btn-sm" href="tel:${p}">কল</a>` : ""}
+          <button class="btn btn-danger btn-sm" data-del="${s.key}">মুছুন</button></div></div>`; }).join("") : `<div class="card empty">${icon("users", 48)}<p>এখনো কিছু আসেনি।</p></div>`}</div>`;
+    }
+    afterRender.signup = afterRender.contact = () => {
+      $("#reload").onclick = () => { SUBS = null; render(); loadSubs(); };
+      if (SUBS && !SUBS.error) bindDelete(TAB, render);
+    };
+
+    /* ================= কোর্স ================= */
+    const catOpts = () => C.categories.map((c) => [c.id, c.name]);
+    function vCourses() {
+      if (EDIT !== null && C.courses[EDIT]) return vCourseEdit(EDIT);
+      return `<div class="panel-head"><div><span class="eyebrow">কোর্স</span><h2>সব কোর্স (${toBn(C.courses.length)})</h2></div><button class="btn btn-primary" id="addCourse">+ নতুন কোর্স যোগ করুন</button></div>
+        ${C.courses.map((c, i) => `<div class="card row-item">${thumb(c)}
+          <div><b>${esc(c.title)}</b><div class="kv"><span>${esc(catName(c.category) || (C.categories.find((x) => x.id === c.category) || {}).name || "")}</span><span>${c.type === "live" ? "লাইভ" : "রেকর্ডেড"}</span><span><b>${fmtPrice(c.price)}</b></span><span>${toBn(allLessons(c).length)} লেসন</span></div></div>
+          <div class="acts"><button class="btn btn-ghost btn-sm" data-up="${i}" ${i === 0 ? "disabled" : ""}>↑</button><button class="btn btn-ghost btn-sm" data-down="${i}" ${i === C.courses.length - 1 ? "disabled" : ""}>↓</button>
+          <button class="btn btn-primary btn-sm" data-edit="${i}">এডিট</button><button class="btn btn-ghost btn-sm" data-dup="${i}">কপি</button><button class="btn btn-danger btn-sm" data-rm="${i}">মুছুন</button></div></div>`).join("")}`;
+    }
+    afterRender.courses = () => {
+      if (EDIT !== null) return afterCourseEdit();
+      $("#addCourse").onclick = () => {
+        C.courses.unshift({ id: "c" + Date.now().toString(36), title: "নতুন কোর্স", short: "", category: (C.categories[0] || {}).id || "", type: "live", level: "শুরু থেকে",
+          price: 1000, oldPrice: 0, duration: "৩ মাস", students: 0, rating: 5, batch: "ব্যাচ ১", startDate: "", seats: 20, colors: ["#164673", "#19a64f"], icon: "book", image: "",
+          instructor: { name: "", role: "", photo: "" }, outcomes: [], requirements: [], modules: [{ title: "মডিউল ১", lessons: [{ id: "l1", title: "প্রথম ক্লাস", duration: "১০:০০", video: "", free: true }] }] });
+        EDIT = 0; render(); scrollTo({ top: 0 });
+      };
+      $$("[data-edit]").forEach((b) => b.onclick = () => { EDIT = +b.dataset.edit; render(); scrollTo({ top: 0 }); });
+      $$("[data-dup]").forEach((b) => b.onclick = () => { const n = clone(C.courses[+b.dataset.dup]); n.id = "c" + Date.now().toString(36); n.title += " (কপি)"; C.courses.splice(+b.dataset.dup + 1, 0, n); render(); });
+      $$("[data-rm]").forEach((b) => b.onclick = () => { if (confirm(`"${C.courses[+b.dataset.rm].title}" কোর্সটি মুছে ফেলবেন?`)) { C.courses.splice(+b.dataset.rm, 1); render(); } });
+      $$("[data-up]").forEach((b) => b.onclick = () => { const i = +b.dataset.up; [C.courses[i - 1], C.courses[i]] = [C.courses[i], C.courses[i - 1]]; render(); });
+      $$("[data-down]").forEach((b) => b.onclick = () => { const i = +b.dataset.down; [C.courses[i + 1], C.courses[i]] = [C.courses[i], C.courses[i + 1]]; render(); });
+    };
+    function vCourseEdit(i) {
+      const p = `courses.${i}`, c = C.courses[i];
+      c.instructor = c.instructor || {}; c.colors = c.colors || ["#164673", "#19a64f"]; c.modules = c.modules || [];
+      return `<div class="panel-head"><div><button class="btn btn-ghost btn-sm" id="back">← সব কোর্সে ফিরুন</button><h2 style="margin-top:10px">কোর্স এডিট</h2></div>
+          <a class="btn btn-ghost" href="course.html?id=${esc(c.id)}" target="_blank">সাইটে দেখুন ↗</a></div>
+        <div class="card box" style="margin-bottom:16px"><h3>মূল তথ্য</h3>
+          ${inp("কোর্সের নাম", p + ".title")}
+          ${inp("ছোট বর্ণনা", p + ".short", { area: true })}
+          <div class="grid3">${sel("ক্যাটাগরি", p + ".category", catOpts())}${sel("ধরন", p + ".type", [["live", "লাইভ"], ["recorded", "রেকর্ডেড"]])}${inp("লেভেল / কাদের জন্য", p + ".level")}</div>
+          <div class="grid3">${inp("দাম (৳) — ০ দিলে ফ্রি", p + ".price", { type: "number", num: true })}${inp("আগের দাম (৳) — না চাইলে ০", p + ".oldPrice", { type: "number", num: true })}${inp("সময়কাল", p + ".duration", { ph: "যেমন: ৩ মাস" })}</div>
+          <div class="grid3">${inp("শিক্ষার্থী সংখ্যা", p + ".students", { type: "number", num: true })}${inp("রেটিং (১–৫)", p + ".rating", { type: "number", num: true })}${inp("কোর্স আইডি (বদলানো যাবে না)", p + ".id")}</div>
+          ${c.type === "live" ? `<div class="grid3">${inp("ব্যাচ", p + ".batch")}${inp("শুরুর তারিখ", p + ".startDate")}${inp("সিট বাকি", p + ".seats", { type: "number", num: true })}</div>` : ""}
+        </div>
+        <div class="card box" style="margin-bottom:16px"><h3>ছবি ও রং</h3>
+          ${imgF("কোর্সের ছবি (না দিলে রঙিন আইকন দেখাবে)", p + ".image")}
+          <div class="grid3"><div class="field"><label>রং ১</label><input type="color" data-p="${p}.colors.0" value="${esc(c.colors[0])}"></div>
+            <div class="field"><label>রং ২</label><input type="color" data-p="${p}.colors.1" value="${esc(c.colors[1])}"></div>${sel("আইকন", p + ".icon", ICON_LIST.map((x) => [x, x]))}</div>
+        </div>
+        <div class="card box" style="margin-bottom:16px"><h3>উস্তাদ / শিক্ষক</h3>
+          <div class="grid2">${inp("নাম", p + ".instructor.name")}${inp("পরিচয়", p + ".instructor.role")}</div>
+          ${imgF("শিক্ষকের ছবি", p + ".instructor.photo", true)}
+        </div>
+        <div class="card box" style="margin-bottom:16px"><h3>কোর্সে যা শিখবেন / যা লাগবে</h3>
+          <p class="tip">প্রতিটি পয়েন্ট আলাদা লাইনে লিখুন।</p>
+          <div class="grid2">${inp("যা শিখবেন", p + ".outcomes", { area: true, lines: true, rows: 7 })}${inp("যা যা লাগবে", p + ".requirements", { area: true, lines: true, rows: 7 })}</div>
+        </div>
+        <div class="card box"><h3>কারিকুলাম ও ভিডিও</h3>
+          <p class="tip">ভিডিও: YouTube লিংক বা আইডি দিন (যেমন https://youtu.be/AbC123xYz)। পেইড ভিডিও YouTube এ Unlisted রাখুন। "ফ্রি প্রিভিউ" টিক দিলে সবাই দেখতে পারবে।</p>
+          ${c.modules.map((m, mi) => `<div class="mod">
+            <div style="display:flex;gap:10px;align-items:end">${inp("মডিউলের নাম", `${p}.modules.${mi}.title`)}<button class="btn btn-danger btn-sm" style="margin-bottom:4px" data-rmmod="${mi}">মডিউল মুছুন</button></div>
+            ${m.lessons.map((l, li) => { const lp = `${p}.modules.${mi}.lessons.${li}`; return `<div class="les">
+              ${inp("লেসনের নাম", lp + ".title")}${inp("সময়", lp + ".duration")}${inp("YouTube লিংক/আইডি", lp + ".video")}
+              <label class="chk-l"><input type="checkbox" data-p="${lp}.free" ${l.free ? "checked" : ""}> ফ্রি প্রিভিউ</label>
+              <button class="btn btn-danger btn-sm" style="margin-bottom:6px" data-rmles="${mi}.${li}">✕</button></div>`; }).join("")}
+            <button class="btn btn-ghost btn-sm" style="margin-top:10px" data-addles="${mi}">+ লেসন যোগ করুন</button></div>`).join("")}
+          <button class="btn btn-ghost" id="addMod">+ নতুন মডিউল</button>
+        </div>
+        <div style="margin-top:16px;display:flex;gap:10px"><button class="btn btn-ghost" id="back2">← সব কোর্সে ফিরুন</button></div>`;
+    }
+    function afterCourseEdit() {
+      const c = C.courses[EDIT];
+      $("#back").onclick = $("#back2").onclick = () => { EDIT = null; render(); };
+      $(`[data-p="courses.${EDIT}.id"]`).readOnly = true;
+      $(`[data-p="courses.${EDIT}.type"]`).addEventListener("change", () => render());
+      const nextId = () => "l" + Date.now().toString(36);
+      $("#addMod").onclick = () => { c.modules.push({ title: "মডিউল " + toBn(c.modules.length + 1), lessons: [{ id: nextId(), title: "", duration: "", video: "", free: false }] }); render(); };
+      $$("[data-rmmod]").forEach((b) => b.onclick = () => { if (confirm("পুরো মডিউল মুছে যাবে।")) { c.modules.splice(+b.dataset.rmmod, 1); render(); } });
+      $$("[data-addles]").forEach((b) => b.onclick = () => { c.modules[+b.dataset.addles].lessons.push({ id: nextId(), title: "", duration: "", video: "", free: false }); render(); });
+      $$("[data-rmles]").forEach((b) => b.onclick = () => { const [mi, li] = b.dataset.rmles.split(".").map(Number); c.modules[mi].lessons.splice(li, 1); render(); });
+      // YouTube লিংক থেকে আইডি বের করা
+      $$('[data-p$=".video"]').forEach((el) => el.addEventListener("change", () => {
+        const m = /(?:youtu\.be\/|v=|embed\/|shorts\/)([\w-]{6,})/.exec(el.value); if (m) { el.value = m[1]; setP(el.dataset.p, m[1]); updBar(); }
+      }));
+    }
+
+    /* ================= ক্যাটাগরি ================= */
+    function vCats() {
+      return `<div class="panel-head"><div><span class="eyebrow">ক্যাটাগরি</span><h2>কোর্সের ক্যাটাগরি</h2></div><button class="btn btn-primary" id="addCat">+ নতুন ক্যাটাগরি</button></div>
+        ${C.categories.map((c, i) => `<div class="card list-card"><div class="grid3">${inp("নাম", `categories.${i}.name`)}${sel("আইকন", `categories.${i}.icon`, ICON_LIST.map((x) => [x, x]))}
+          <div class="field"><label>কোর্স সংখ্যা</label><input value="${toBn(C.courses.filter((x) => x.category === c.id).length)}" disabled></div></div>
+          <div class="acts"><button class="btn btn-danger btn-sm" data-rmcat="${i}">মুছুন</button></div></div>`).join("")}`;
+    }
+    afterRender.cats = () => {
+      $("#addCat").onclick = () => { C.categories.push({ id: "cat" + Date.now().toString(36), name: "নতুন ক্যাটাগরি", icon: "book" }); render(); };
+      $$("[data-rmcat]").forEach((b) => b.onclick = () => {
+        const c = C.categories[+b.dataset.rmcat], n = C.courses.filter((x) => x.category === c.id).length;
+        if (n) { toast(`এই ক্যাটাগরিতে ${toBn(n)}টি কোর্স আছে — আগে সেগুলোর ক্যাটাগরি বদলান`, "err"); return; }
+        C.categories.splice(+b.dataset.rmcat, 1); render();
+      });
+    };
+
+    /* ================= হোমপেজ ================= */
+    function vHome() {
+      return `<div class="panel-head"><div><span class="eyebrow">হোমপেজ</span><h2>হোমপেজের লেখা ও ছবি</h2></div><a class="btn btn-ghost" href="index.html" target="_blank">সাইটে দেখুন ↗</a></div>
+        <div class="card box" style="margin-bottom:16px"><h3>উপরের বড় অংশ (হিরো)</h3>
+          ${inp("ছোট ব্যানার লেখা", "site.hero.badge")}
+          <div class="grid3">${inp("শিরোনাম ১ম লাইন", "site.hero.title")}${inp("হাইলাইট করা শব্দ", "site.hero.highlight")}${inp("শিরোনামের শেষ অংশ", "site.hero.title2")}</div>
+          ${inp("নিচের বর্ণনা", "site.hero.sub", { area: true })}
+          ${imgF("ডান পাশের ছবি (না দিলে প্রথম কোর্সের কার্ড দেখাবে)", "site.hero.image")}
+        </div>
+        <div class="card box" style="margin-bottom:16px"><h3>কেন আমাদের সাথে শিখবেন (৪টি পয়েন্ট)</h3>
+          ${C.site.features.map((f, i) => `<div class="mod"><div class="grid3">${inp("শিরোনাম", `site.features.${i}.title`)}${sel("আইকন", `site.features.${i}.icon`, ICON_LIST.map((x) => [x, x]))}<div style="align-self:end;padding-bottom:4px"><button class="btn btn-danger btn-sm" data-rmf="${i}">মুছুন</button></div></div>${inp("বর্ণনা", `site.features.${i}.text`)}</div>`).join("")}
+          <button class="btn btn-ghost btn-sm" id="addF">+ পয়েন্ট যোগ করুন</button>
+        </div>
+        <div class="card box" style="margin-bottom:16px"><h3>নিচের ফ্রি ট্রায়াল ব্যানার</h3>${inp("শিরোনাম", "site.cta.title")}${inp("বর্ণনা", "site.cta.sub")}</div>
+        <div class="card box"><h3>ফুটারের পরিচিতি লেখা</h3>${inp("আমাদের সম্পর্কে", "site.about", { area: true })}</div>`;
+    }
+    afterRender.home = () => {
+      $("#addF").onclick = () => { C.site.features.push({ icon: "check", title: "", text: "" }); render(); };
+      $$("[data-rmf]").forEach((b) => b.onclick = () => { C.site.features.splice(+b.dataset.rmf, 1); render(); });
+    };
+
+    /* ================= রিভিউ ================= */
+    function vReviews() {
+      return `<div class="panel-head"><div><span class="eyebrow">রিভিউ</span><h2>শিক্ষার্থী ও অভিভাবকদের রিভিউ</h2></div><button class="btn btn-primary" id="addR">+ নতুন রিভিউ</button></div>
+        ${C.testimonials.map((t, i) => `<div class="card list-card"><div class="grid3">${inp("নাম", `testimonials.${i}.name`)}${inp("পরিচয়", `testimonials.${i}.role`, { ph: "যেমন: অভিভাবক" })}${sel("স্টার", `testimonials.${i}.stars`, [[5, "★★★★★"], [4, "★★★★"], [3, "★★★"]])}</div>
+          ${inp("রিভিউ", `testimonials.${i}.text`, { area: true })}${imgF("ছবি (ঐচ্ছিক)", `testimonials.${i}.photo`, true)}
+          <div class="acts"><button class="btn btn-danger btn-sm" data-rmr="${i}">মুছুন</button></div></div>`).join("")}`;
+    }
+    afterRender.reviews = () => {
+      $("#addR").onclick = () => { C.testimonials.unshift({ name: "", role: "", text: "", stars: 5, photo: "" }); render(); };
+      $$("[data-rmr]").forEach((b) => b.onclick = () => { if (confirm("রিভিউটি মুছবেন?")) { C.testimonials.splice(+b.dataset.rmr, 1); render(); } });
+      $$('[data-p$=".stars"]').forEach((el) => el.addEventListener("change", () => setP(el.dataset.p, Number(el.value))));
+    };
+
+    /* ================= প্রশ্নোত্তর ================= */
+    function vFaq() {
+      return `<div class="panel-head"><div><span class="eyebrow">প্রশ্নোত্তর</span><h2>সাধারণ প্রশ্ন (FAQ)</h2></div><button class="btn btn-primary" id="addQ">+ নতুন প্রশ্ন</button></div>
+        ${C.faqs.map((f, i) => `<div class="card list-card">${inp("প্রশ্ন", `faqs.${i}.q`)}${inp("উত্তর", `faqs.${i}.a`, { area: true })}
+          <div class="acts"><button class="btn btn-danger btn-sm" data-rmq="${i}">মুছুন</button></div></div>`).join("")}`;
+    }
+    afterRender.faq = () => {
+      $("#addQ").onclick = () => { C.faqs.push({ q: "", a: "" }); render(); };
+      $$("[data-rmq]").forEach((b) => b.onclick = () => { C.faqs.splice(+b.dataset.rmq, 1); render(); });
+    };
+
+    /* ================= সাইট সেটিংস ================= */
+    function vSettings() {
+      const pay = Object.keys(C.site.payments);
+      return `<div class="panel-head"><div><span class="eyebrow">সেটিংস</span><h2>সাইট সেটিংস ও লোগো</h2></div></div>
+        <div class="card box" style="margin-bottom:16px"><h3>নাম ও লোগো</h3>
+          <div class="grid2">${inp("একাডেমির নাম (বাংলা)", "site.name")}${inp("একাডেমির নাম (ইংরেজি)", "site.nameEn")}</div>
+          ${inp("ট্যাগলাইন", "site.tagline")}
+          ${imgF("লোগো (গোল/চারকোনা প্রতীক — হেডার ও ফুটারে দেখায়)", "site.emblem", true)}
+        </div>
+        <div class="card box" style="margin-bottom:16px"><h3>যোগাযোগ</h3>
+          <div class="grid2">${inp("ফোন নম্বর", "site.phone")}${inp("WhatsApp নম্বর (৮৮ সহ, যেমন 8801724649947)", "site.whatsapp")}</div>
+          <div class="grid2">${inp("ইমেইল", "site.email")}${inp("ঠিকানা", "site.address")}</div>
+          <div class="grid2">${inp("Facebook পেজের লিংক", "site.facebook")}${inp("YouTube চ্যানেলের লিংক", "site.youtube")}</div>
+        </div>
+        <div class="card box"><h3>পেমেন্ট নম্বর (Send Money)</h3>
+          ${pay.map((k) => `<div class="grid3">${inp("মাধ্যম", `site.payments.${k}.label`)}${inp("নম্বর", `site.payments.${k}.number`)}${sel("ধরন", `site.payments.${k}.type`, [["Personal", "Personal"], ["Agent", "Agent"], ["Merchant", "Merchant"]])}</div>`).join("")}
+        </div>`;
+    }
+
+    /* ================= ট্র্যাকিং ================= */
+    let TRK = null; // { hasToken, testCode }
+    function vTracking() {
+      C.site.tracking = C.site.tracking || { pixelId: "", ga4Id: "" };
+      return `<div class="panel-head"><div><span class="eyebrow">ট্র্যাকিং</span><h2>Facebook Pixel, Conversions API ও Google Analytics</h2></div></div>
+        <div class="card box" style="margin-bottom:16px"><h3>১. Pixel ও Analytics ID</h3>
+          <p class="tip">এগুলো লিখে নিচের কালো বারে <b>“সব পরিবর্তন সেভ করুন”</b> চাপুন। ফাঁকা করে সেভ দিলে ট্র্যাকিং বন্ধ হয়ে যাবে।</p>
+          <div class="grid2">${inp("Facebook Pixel ID (শুধু সংখ্যা)", "site.tracking.pixelId", { ph: "যেমন: 123456789012345", tip: "Meta Events Manager → Data sources → আপনার Pixel → Settings এ পাবেন" })}
+            ${inp("Google Analytics 4 Measurement ID (ঐচ্ছিক)", "site.tracking.ga4Id", { ph: "G-XXXXXXXXXX" })}</div>
+        </div>
+        <div class="card box" style="margin-bottom:16px"><h3>২. Conversions API (সার্ভার সাইড ট্র্যাকিং)</h3>
+          <p class="tip">Events Manager → আপনার Pixel → <b>Settings</b> → <b>Conversions API</b> → <b>Generate access token</b>। টোকেনটি এখানে বসান। এটা শুধু সার্ভারে থাকে, ওয়েবসাইটের কোডে দেখা যায় না।</p>
+          <div id="trkStatus" class="muted" style="margin-bottom:10px">অবস্থা দেখা হচ্ছে...</div>
+          <form class="form" id="trkForm">
+            <div class="field"><label>Access Token</label><input id="trkToken" type="password" autocomplete="off" placeholder="নতুন টোকেন বসাতে চাইলে এখানে পেস্ট করুন"></div>
+            <div class="field"><label>Test Event Code (শুধু টেস্টের সময়, পরে ফাঁকা করে দিন)</label><input id="trkTest" placeholder="যেমন: TEST12345"><small>Events Manager → Test events ট্যাবে এই কোড পাবেন।</small></div>
+            <div class="acts" style="justify-content:flex-start"><button class="btn btn-primary">টোকেন সেভ করুন</button><button type="button" class="btn btn-danger" id="trkClear">টোকেন মুছুন</button></div>
+          </form>
+        </div>
+        <div class="card box" style="margin-bottom:16px"><h3>৩. টেস্ট করুন</h3>
+          <p class="tip">Pixel ID সেভ করা আর টোকেন বসানো থাকলে এই বাটনে চাপুন। Events Manager → Test events এ একটি <b>Lead</b> ইভেন্ট আসবে।</p>
+          <button class="btn btn-ghost" id="trkTestBtn">সার্ভার থেকে টেস্ট ইভেন্ট পাঠান</button>
+          <div id="trkTestOut" style="margin-top:10px"></div>
+        </div>
+        <div class="card box"><h3>কোন কাজে কোন ইভেন্ট যায়</h3>
+          <div class="kv" style="display:grid;gap:6px">
+            <span>যেকোনো পেজ দেখা → <b>PageView</b> (ব্রাউজার)</span>
+            <span>কোর্সের পেজ দেখা → <b>ViewContent</b> (ব্রাউজার + সার্ভার)</span>
+            <span>পেমেন্ট পেজে যাওয়া → <b>InitiateCheckout</b> (ব্রাউজার + সার্ভার)</span>
+            <span>TrxID জমা দেওয়া → <b>AddPaymentInfo</b> (ব্রাউজার + সার্ভার)</span>
+            <span>অ্যাকাউন্ট খোলা → <b>CompleteRegistration</b> (ব্রাউজার + সার্ভার)</span>
+            <span>যোগাযোগ ফর্ম → <b>Lead</b>, ফ্রি ট্রায়াল WhatsApp বাটন → <b>Contact</b></span>
+            <span>আপনি “অনুমোদন করুন” চাপলে → <b>Purchase</b> (টাকার পরিমাণসহ, সার্ভার থেকে)</span>
+          </div></div>`;
+    }
+    afterRender.tracking = () => {
+      const show = (s) => { TRK = s; $("#trkStatus").innerHTML = s.hasToken ? `<span class="status active">${icon("check", 14)} টোকেন সেট করা আছে</span>` : `<span class="status pending">${icon("clock", 14)} টোকেন এখনো বসানো হয়নি</span>`; $("#trkTest").value = s.testCode || ""; };
+      api("tracking-status").then(show).catch((e) => { $("#trkStatus").textContent = errMsg(e); });
+      $("#trkForm").onsubmit = async (e) => {
+        e.preventDefault();
+        try { show(await api("tracking-secret", { token: $("#trkToken").value, testCode: $("#trkTest").value })); $("#trkToken").value = ""; toast("সেভ হয়েছে"); }
+        catch (err) { toast(errMsg(err), "err"); }
+      };
+      $("#trkClear").onclick = async () => {
+        if (!confirm("টোকেন মুছে দিলে সার্ভার সাইড ট্র্যাকিং বন্ধ হবে।")) return;
+        try { show(await api("tracking-secret", { clearToken: true })); toast("টোকেন মুছে ফেলা হয়েছে"); } catch (err) { toast(errMsg(err), "err"); }
+      };
+      $("#trkTestBtn").onclick = async () => {
+        if (dirty()) { toast("আগে নিচের বার থেকে Pixel ID সেভ করুন", "err"); return; }
+        try {
+          const r = (await api("tracking-test", { siteUrl: location.origin + "/", ua: navigator.userAgent })).result || {};
+          $("#trkTestOut").innerHTML = r.ok ? `<span class="status active">${icon("check", 14)} পাঠানো হয়েছে — Events Manager এ দেখুন</span>`
+            : r.skipped ? `<span class="status pending">Pixel ID সেভ করা বা টোকেন বসানো নেই</span>` : `<span class="status pending">ব্যর্থ: ${esc(r.error)}</span>`;
+        } catch (err) { toast(errMsg(err), "err"); }
+      };
+    };
+
+    /* ================= পাসওয়ার্ড ================= */
+    function vSecurity() {
+      return `<div class="panel-head"><div><span class="eyebrow">নিরাপত্তা</span><h2>লগইন নম্বর ও পাসওয়ার্ড</h2></div></div>
+        <div class="card box" style="max-width:520px"><form class="form" id="pwForm">
+          <div class="field"><label>লগইন মোবাইল নম্বর</label><input id="pwPhone" type="tel" value="${esc(CRED.phone)}" required></div>
+          <div class="field"><label>নতুন পাসওয়ার্ড (কমপক্ষে ৮ অক্ষর)</label><input id="pw1" type="password" minlength="8" autocomplete="new-password" required></div>
+          <div class="field"><label>আবার লিখুন</label><input id="pw2" type="password" minlength="8" autocomplete="new-password" required></div>
+          <button class="btn btn-primary">পাসওয়ার্ড বদলান</button></form></div>`;
+    }
+    afterRender.security = () => {
+      $("#pwForm").onsubmit = async (e) => {
+        e.preventDefault();
+        if ($("#pw1").value !== $("#pw2").value) { toast("দুটি পাসওয়ার্ড মিলছে না", "err"); return; }
+        try {
+          await api("password", { newPassword: $("#pw1").value, newPhone: $("#pwPhone").value });
+          CRED = { phone: normPhone($("#pwPhone").value), password: $("#pw1").value };
+          try { sessionStorage.setItem(SK, JSON.stringify(CRED)); } catch {}
+          toast("পাসওয়ার্ড বদলানো হয়েছে। পরের বার নতুনটা দিয়ে লগইন করবেন।"); e.target.reset();
+        } catch (err) { toast(errMsg(err), "err"); }
+      };
+    };
+  });
+  </script>
+</body>
+</html>

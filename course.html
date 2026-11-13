@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>কোর্স — {site}</title>
+  <link rel="icon" href="favicon.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header id="site-header"></header>
+  <main id="app"></main>
+  <footer id="site-footer"></footer>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+  <script>
+    onReady(() => {
+      const c = getCourse(qs("id"));
+      if (!c) { location.replace("404.html"); return; }
+      document.title = c.title + " — " + SITE.name;
+      const lessons = allLessons(c);
+      const status = Enroll.status(c.id);
+      const off = c.oldPrice ? Math.round((1 - c.price / c.oldPrice) * 100) : 0;
+      track("ViewContent", courseData(c));
+
+      let cta;
+      if (status === "active") cta = `<a class="btn btn-primary btn-lg btn-block" href="learn.html?id=${c.id}">${icon("play", 18)} ক্লাস শুরু করুন</a>`;
+      else if (status === "pending") cta = `<a class="btn btn-dark btn-lg btn-block" href="dashboard.html">${icon("clock", 18)} পেমেন্ট যাচাই হচ্ছে</a>`;
+      else if (c.price === 0) cta = `<button class="btn btn-primary btn-lg btn-block" id="freeEnroll">${icon("play", 18)} ফ্রিতে শুরু করুন</button>`;
+      else cta = `<a class="btn btn-primary btn-lg btn-block" href="checkout.html?id=${c.id}">এনরোল করুন ${icon("arrow", 18)}</a>`;
+
+      $("#app").innerHTML = `
+      <div class="cd-hero">
+        <div class="container cd-layout">
+          <div>
+            <div class="crumbs"><a href="index.html">হোম</a> / <a href="courses.html?cat=${c.category}">${esc(catName(c.category))}</a></div>
+            <span class="pill" style="background:#1e293b;border-color:#334155;color:#fff">
+              <span class="dot" style="background:${c.type === "live" ? "#7f1d1d" : "#064e3b"};color:#fff">${c.type === "live" ? "লাইভ" : "রেকর্ডেড"}</span> ${esc(c.level)}</span>
+            <h1 style="margin-top:16px">${esc(c.title)}</h1>
+            <p class="lead">${esc(c.short)}</p>
+            <div class="cd-meta">
+              <span>${icon("star", 17, "fill")} ${toBn(Number(c.rating || 0).toFixed(1))} রেটিং</span>
+              <span>${icon("users", 17)} ${fmtNum(c.students)} শিক্ষার্থী</span>
+              <span>${icon("clock", 17)} ${esc(c.duration)}</span>
+              <span>${icon("video", 17)} ${toBn(lessons.length)}টি লেসন</span>
+              ${c.type === "live" ? `<span>${icon("calendar", 17)} ${esc(c.batch)} · শুরু ${esc(c.startDate)}</span>` : ""}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="container cd-layout">
+        <div class="cd-main">
+          <div class="card box reveal"><h2>এই কোর্সে যা শিখবেন</h2>
+            <ul class="learn-list">${c.outcomes.map((o) => `<li>${icon("check", 18)}<span>${esc(o)}</span></li>`).join("")}</ul></div>
+
+          <div class="reveal"><h2 style="font-size:24px">কোর্স কারিকুলাম</h2>
+            <p class="muted">${toBn(c.modules.length)}টি মডিউল · ${toBn(lessons.length)}টি লেসন</p>
+            <div class="curr">${c.modules.map((m, i) => `
+              <details ${i === 0 ? "open" : ""}><summary><span>${esc(m.title)}</span><small>${toBn(m.lessons.length)} লেসন</small>${icon("chevron", 20)}</summary>
+                ${m.lessons.map((l) => `<div class="lesson">${icon(l.free ? "play" : "lock", 17)}<span class="ln">${esc(l.title)}</span>
+                  ${l.free ? `<a class="tag" href="learn.html?id=${c.id}&l=${l.id}">প্রিভিউ</a>` : ""}<span class="dur">${esc(l.duration)}</span></div>`).join("")}
+              </details>`).join("")}</div></div>
+
+          <div class="card box reveal"><h2>উস্তাদ / শিক্ষক</h2>
+            <div class="instructor">${c.instructor.photo ? `<img class="ava" src="${esc(c.instructor.photo)}" alt="">` : `<span class="ava">${esc(String(c.instructor.name || "?")[0])}</span>`}
+              <div><h3 style="margin:0">${esc(c.instructor.name)}</h3><p class="muted" style="margin:0">${esc(c.instructor.role)}</p></div></div></div>
+
+          <div class="card box reveal"><h2>যা যা লাগবে</h2>
+            <ul class="learn-list">${c.requirements.map((r) => `<li>${icon("check", 18)}<span>${esc(r)}</span></li>`).join("")}</ul></div>
+
+          <div class="reveal"><h2 style="font-size:24px">সাধারণ প্রশ্ন</h2>
+            <div class="faq" style="margin:0">${FAQS.slice(0, 4).map((f) => `<details><summary>${esc(f.q)} ${icon("chevron", 20)}</summary><div class="ans">${esc(f.a)}</div></details>`).join("")}</div></div>
+        </div>
+
+        <aside class="cd-side">
+          <div class="card buy-card">
+            ${thumb(c)}
+            <div class="buy-body">
+              <div class="buy-price"><b>${fmtPrice(c.price)}</b>${c.oldPrice ? `<s>${fmtPrice(c.oldPrice)}</s><span class="off">${toBn(off)}% ছাড়</span>` : ""}</div>
+              <p class="muted" style="margin-bottom:18px">${c.price === 0 ? "সম্পূর্ণ ফ্রি — শুধু অ্যাকাউন্ট খুলুন" : "বিকাশ / নগদ / রকেটে পেমেন্ট"}</p>
+              ${cta}
+              ${c.type === "live" && c.seats <= 20 ? `<div class="seat-warn">${icon("clock", 16)} মাত্র ${toBn(c.seats)}টি সিট বাকি!</div>` : ""}
+              <ul class="buy-list">
+                <li>${icon("video", 18)} ${toBn(lessons.length)}টি ভিডিও লেসন</li>
+                ${c.type === "live" ? `<li>${icon("live", 18)} সপ্তাহে ৩টি লাইভ ক্লাস</li><li>${icon("users", 18)} সাপোর্ট সেশন ও প্রাইভেট গ্রুপ</li>` : `<li>${icon("clock", 18)} আজীবন অ্যাক্সেস</li>`}
+                <li>${icon("award", 18)} কোর্স শেষে সার্টিফিকেট</li>
+                <li>${icon("shield", 18)} মোবাইল ও কম্পিউটারে দেখুন</li>
+              </ul>
+              <a class="btn btn-ghost btn-block" style="margin-top:18px" href="https://wa.me/${SITE.whatsapp}?text=${encodeURIComponent("আমি এই কোর্স সম্পর্কে জানতে চাই: " + c.title)}" target="_blank" rel="noopener">${icon("chat", 18)} প্রশ্ন আছে? WhatsApp করুন</a>
+            </div>
+          </div>
+        </aside>
+      </div>`;
+
+      const fe = $("#freeEnroll");
+      if (fe) fe.onclick = () => {
+        if (!Auth.current()) { location.href = "login.html?next=" + encodeURIComponent("course.html?id=" + c.id); return; }
+        Enroll.add(c.id, { method: "free", amount: 0 }); Enroll.activate(c.id);
+        location.href = "learn.html?id=" + c.id;
+      };
+    });
+  </script>
+</body>
+</html>

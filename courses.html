@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>সব কোর্স — {site}</title>
+  <link rel="icon" href="favicon.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header id="site-header"></header>
+  <main>
+    <div class="page-head">
+      <div class="container">
+        <div class="crumbs"><a href="index.html">হোম</a> / <span>সব কোর্স</span></div>
+        <h1>সব কোর্স</h1>
+        <p>লাইভ ও রেকর্ডেড — আপনার প্রয়োজনমতো কোর্স খুঁজে নিন।</p>
+      </div>
+    </div>
+    <div class="container" style="padding-bottom:80px">
+      <div class="toolbar">
+        <div class="search-box">
+          <svg class="ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input type="search" id="q" placeholder="কোর্স খুঁজুন..." aria-label="কোর্স খুঁজুন">
+        </div>
+        <select id="type" aria-label="ধরন">
+          <option value="">সব ধরন</option><option value="live">লাইভ</option><option value="recorded">রেকর্ডেড</option>
+        </select>
+        <select id="price" aria-label="মূল্য">
+          <option value="">সব মূল্য</option><option value="free">ফ্রি</option><option value="paid">পেইড</option>
+        </select>
+        <select id="sort" aria-label="সাজান">
+          <option value="pop">জনপ্রিয়</option><option value="low">কম দাম আগে</option><option value="high">বেশি দাম আগে</option><option value="rate">রেটিং</option>
+        </select>
+      </div>
+      <div class="chips" id="chips"></div>
+      <p class="muted" id="count"></p>
+      <div class="grid" id="grid"></div>
+    </div>
+  </main>
+  <footer id="site-footer"></footer>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+  <script>
+    onReady(() => {
+      const st = { q: qs("q") || "", cat: qs("cat") || "", type: qs("type") || "", price: qs("price") || "", sort: "pop" };
+      $("#q").value = st.q; $("#type").value = st.type; $("#price").value = st.price;
+
+      const renderChips = () => {
+        $("#chips").innerHTML = [{ id: "", name: "সব" }, ...CATEGORIES]
+          .map((c) => `<button class="chip ${st.cat === c.id ? "on" : ""}" data-c="${c.id}">${c.name}</button>`).join("");
+        $$("#chips .chip").forEach((b) => b.onclick = () => { st.cat = b.dataset.c; renderChips(); render(); });
+      };
+      const render = () => {
+        const q = st.q.trim().toLowerCase();
+        let list = COURSES.filter((c) =>
+          (!st.cat || c.category === st.cat) &&
+          (!st.type || c.type === st.type) &&
+          (!st.price || (st.price === "free" ? c.price === 0 : c.price > 0)) &&
+          (!q || (c.title + " " + c.short + " " + catName(c.category)).toLowerCase().includes(q)));
+        const sorters = { pop: (a, b) => b.students - a.students, low: (a, b) => a.price - b.price, high: (a, b) => b.price - a.price, rate: (a, b) => b.rating - a.rating };
+        list.sort(sorters[st.sort]);
+        $("#count").textContent = toBn(list.length) + "টি কোর্স পাওয়া গেছে";
+        $("#grid").innerHTML = list.length ? list.map(courseCard).join("")
+          : `<div class="empty" style="grid-column:1/-1">${icon("search", 56)}<h3>কোনো কোর্স পাওয়া যায়নি</h3><p>অন্য শব্দ দিয়ে খুঁজে দেখুন।</p></div>`;
+        const p = new URLSearchParams(); ["q", "cat", "type", "price"].forEach((k) => st[k] && p.set(k, st[k]));
+        history.replaceState(null, "", "courses.html" + (p.toString() ? "?" + p : ""));
+      };
+      $("#q").oninput = (e) => { st.q = e.target.value; render(); };
+      ["type", "price", "sort"].forEach((k) => $("#" + k).onchange = (e) => { st[k] = e.target.value; render(); });
+      renderChips(); render();
+    });
+  </script>
+</body>
+</html>
